@@ -7,17 +7,15 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Surround from './components/Surround'
 
 function App() {
-
-
   return (
-    <Router>
+    <Router basename="/cfproject"> {/* 👈 Add this line */}
       <Routes>
         <Route path="/" element={<DataEntryPage />} />
         <Route path="/manage" element={<Audio />} />
-        <Route path='/add'  element={<Surround/>}/>
+        <Route path="/add" element={<Surround />} />
       </Routes>
     </Router>
   )
 }
 
-export default App;
+export default App
