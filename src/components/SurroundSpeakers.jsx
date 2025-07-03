@@ -110,6 +110,8 @@ function SurroundSpeakers({ type, brand }) {
   const [data, setData] = useState([]);
   const [selections, setSelections] = useState({});
 
+
+
   useEffect(() => {
     const fetchModels = async () => {
       try {
@@ -122,7 +124,8 @@ function SurroundSpeakers({ type, brand }) {
     };
 
     if (type) fetchModels();
-  }, [type]);
+}, [type, brand]); // ✅ Re-fetch on both
+
 
   const getModelByBrand = (arr, key, brand) => {
     const seen = new Set();
