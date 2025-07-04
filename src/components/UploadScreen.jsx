@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs } from 'firebase/firestore';
-import { db } from '../firebase'; // ✅ Use your configured db
+import { db } from '../firebase'; 
 
 const UploadScreen = () => {
   const [data, setData] = useState([]);
