@@ -20,7 +20,7 @@ function DataEntryPage() {
         { name: "11.1 System", value: "11.1", TrueValue: "11.1"  },
         { name: "11.2 System", value: "11.2", TrueValue: "11.2"  },
         { name: "13.1 System", value: "13.1", TrueValue: "13.1"  },
-        { name: "13.2 System", value: "13.1", TrueValue: "13.2"  },
+        { name: "13.2 System", value: "13.2", TrueValue: "13.2"  },
     ];
 
     useEffect(() => {
