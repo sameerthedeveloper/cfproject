@@ -28,14 +28,25 @@ const SpeakerDropdown = ({ label, options, value, onChange }) => (
     <h1 className='font-semibold text-md'>{label}</h1>
     <div className='flex-1 mt-2 bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center'>
       <select
+        required
         className='bg-amber-100 w-full text-sm font-medium outline-none text-center'
         value={value}
         onChange={onChange}
       >
-        <option value="">Select The Model</option>
-        {options.map((item, i) => (
-          <option key={`${label}-${i}`} value={item.MODEL}>{item.MODEL}</option>
-        ))}
+        <option value="default">Select The Model</option>
+
+        {label === 'Atmos' && <option value="none">No Atmos</option>}
+        {label === 'Signature Screen Ratio' && <option value="none">No Screen</option>}
+        {label === 'Projector' && <option value="none">No Projector</option>}
+        {label === 'Rear Back Surround' && <option value="none">None</option>}
+        {}
+        {options.map((item, i) =>
+          label !== 'Projector'  ? (
+            <option key={i} value={item.MODEL}>{item.MODEL}</option>
+          ) : (
+            <option key={i} value={item.MODEL}>{item.MODEL} ({item.BRAND}) </option>
+          )
+        )}
       </select>
     </div>
   </div>
@@ -45,7 +56,9 @@ function SurroundSpeakers({ type, brand }) {
   const [data, setData] = useState([]);
   const [selections, setSelections] = useState({});
   const [commonOptions, setCommonOptions] = useState({});
-  const [selectedRatio, setSelectedRatio] = useState('');
+  const [selectedRatio, setSelectedRatio] = useState('default');
+
+  
 
   useEffect(() => {
     setSelections({});
@@ -124,6 +137,8 @@ function SurroundSpeakers({ type, brand }) {
 
   const layout = CONFIG[type] || {};
 
+  const anySelected = Object.values(selections).some(val => val && val !== 'default' && val !== 'none') || (selectedRatio && selectedRatio !== 'default' && selectedRatio !== 'none');
+
   return (
     <div className='mb-20'>
       {/* Speaker channels */}
@@ -156,19 +171,38 @@ function SurroundSpeakers({ type, brand }) {
         value={selectedRatio}
         onChange={(e) => {
           setSelectedRatio(e.target.value);
+          console.log("Selected Ratio:", e.target.value);
+          
           setSelections(prev => ({ ...prev, ["Signature Screen Ratio"]: e.target.value }));
         }}
       />
 
       {/* Signature Screen Size Selector (based on ratio) */}
-      {selectedRatio && (
-        <SpeakerDropdown
-          key="SignatureScreenSize"
-          label={`Screen Sizes for ${selectedRatio}`}
-          options={(commonOptions["Signature Screen Sizes"]?.[selectedRatio] || []).map(v => ({ MODEL: v }))}
-          value={selections["Signature Screen"] || ''}
-          onChange={handleSelectionChange("Signature Screen")}
-        />
+      {(selectedRatio !== 'none' && selectedRatio !== 'default') && (
+        <>
+          <SpeakerDropdown
+            key="SignatureScreenSize"
+            label={`Screen Sizes for ${selectedRatio}`}
+            options={(commonOptions["Signature Screen Sizes"]?.[selectedRatio] || []).map(v => ({ MODEL: v }))}
+            value={selections["Signature Screen"] || ''}
+            onChange={handleSelectionChange("Signature Screen")}
+          />
+          <div className='m-5 p-4 border-1 border-gray-400 rounded-xl shadow-md'>
+            <h1 className='font-semibold text-md'>Custom Screen Price</h1>
+            <input type='number' inputMode='numeric' placeholder='Enter The Custom Price' className='flex-1 mt-2 w-full bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center'/>
+          </div>
+
+          <div className='m-5 p-4 border-1 border-gray-400 rounded-xl shadow-md'>
+            <h1 className='font-semibold text-md'>Custom Lens Price</h1>
+            <input type='number' inputMode='numeric' placeholder='Enter The Custom Price' className='flex-1 mt-2 w-full bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center'/>
+          </div>
+        </>
+      )}
+
+      
+      {anySelected && (
+        // 
+        <></>
       )}
     </div>
   );

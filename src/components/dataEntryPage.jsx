@@ -14,13 +14,13 @@ function DataEntryPage() {
     const surroundVersions = [
         { name: "5.1 System", value: "5.1", TrueValue: "5.1" },
         { name: "7.1 System", value: "7.1", TrueValue: "7.1" },
-        { name: "7.2 System", value: "7.1", TrueValue: "7.2" },
-        { name: "9.1 System", value: "9.1", TrueValue: "9.1"  },
-        { name: "9.2 System", value: "9.1", TrueValue: "9.2"  },
-        { name: "11.1 System", value: "11.1", TrueValue: "11.1"  },
-        { name: "11.2 System", value: "11.1", TrueValue: "11.2"  },
-        { name: "13.1 System", value: "13.1", TrueValue: "13.1"  },
-        { name: "13.2 System", value: "13.1", TrueValue: "13.2"  },
+        { name: "7.2 System", value: "7.2", TrueValue: "7.2" },
+        { name: "9.1 System", value: "9.1", TrueValue: "9.1" },
+        { name: "9.2 System", value: "9.2", TrueValue: "9.2" },
+        { name: "11.1 System", value: "11.1", TrueValue: "11.1" },
+        { name: "11.2 System", value: "11.2", TrueValue: "11.2" },
+        { name: "13.1 System", value: "13.1", TrueValue: "13.1" },
+        { name: "13.2 System", value: "13.2", TrueValue: "13.2" },
     ];
 
     useEffect(() => {
@@ -97,6 +97,15 @@ function DataEntryPage() {
                 </div>
             )}
 
+            {activeTab === 'data' && (
+                <div className='invoice mb-20'>
+                    <div className="m-5 p-4 border rounded-xl shadow-md">
+                        <h1 className="font-semibold text-md">Data Section</h1>
+
+                    </div>
+                </div>
+            )}
+
             {activeTab === 'invoice' && (
                 <div className='invoice mb-20'>
                     <div className="m-5 p-4 border rounded-xl shadow-md">
@@ -106,6 +115,7 @@ function DataEntryPage() {
                 </div>
             )}
 
+
             <div className="w-full fixed bottom-0 bg-white shadow-xl border-t border-gray-200 z-50 lg:hidden">
                 <div className="flex justify-around items-center py-3">
                     <div
@@ -114,6 +124,14 @@ function DataEntryPage() {
                     >
                         <i className="fa-solid fa-house"></i>
                         <span className="text-sm">Main</span>
+                    </div>
+
+                    <div
+                        className={`flex flex-col items-center cursor-pointer ${activeTab === 'data' ? 'text-black' : 'text-gray-500 hover:text-black'}`}
+                        onClick={() => setActiveTab('data')}
+                    >
+                        <i className="fa-solid fa-file"></i>
+                        <span className="text-sm">Data</span>
                     </div>
 
                     <div

@@ -1,216 +1,88 @@
 {
-    "11.2": [
+    "7.2": [
         [
             {
-                "BRAND": "ATC",
-                "MODEL": "SCM 40",
+                "BRAND": "SYSTEM AUDIO",
+                "MODEL": "SIGNATURE 40",
                 "TYPE": "LEFT RIGHT",
-                "PRICE": 652000,
+                "PRICE": 225000.0,
                 "COUNT": 2
             },
             {
-                "BRAND": "ATC",
-                "MODEL": "C3C CENTER",
+                "BRAND": "SYSTEM AUDIO",
+                "MODEL": "SIGNATURE 10",
                 "TYPE": "CENTER",
-                "PRICE": 196000,
+                "PRICE": 90000.0,
                 "COUNT": 1
             },
             {
-                "BRAND": "ATC",
-                "MODEL": "HTS 7",
+                "BRAND": "SYSTEM AUDIO",
+                "MODEL": "SIGNATURE 6",
                 "TYPE": "SURROUND",
-                "PRICE": 78000,
+                "PRICE": 91000.0,
                 "COUNT": 1
             },
             {
-                "BRAND": "ATC",
-                "MODEL": "HTS 11",
-                "TYPE": "SURROUND",
-                "PRICE": 115000,
-                "COUNT": 1
-            },
-            {
-                "MODEL": "C4 SUB MK 2",
+                "BRAND": "SYSTEM AUDIO",
+                "MODEL": "SIGNATURE SUB",
                 "TYPE": "SUB",
-                "PRICE": null,
+                "PRICE": 135000.0,
                 "COUNT": 1
             },
             {
-                "BRAND": "ATC",
-                "MODEL": "MJ ACOUSTICS REF 400",
-                "TYPE": "SUB",
-                "PRICE": 263000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "ATC",
+                "BRAND": "SYSTEM AUDIO",
                 "MODEL": "SS82 ",
-                "TYPE": "ATMOS",
-                "PRICE": 38000,
+                "TYPE": "ATMOS ",
+                "PRICE": 38000.0,
                 "COUNT": 1
             },
             {
-                "BRAND": "ATC",
+                "BRAND": "SYSTEM AUDIO",
                 "MODEL": " IQ8S",
-                "TYPE": "ATMOS",
-                "PRICE": 21000,
+                "TYPE": "ATMOS ",
+                "PRICE": 21000.0,
                 "COUNT": 1
             },
             {
                 "BRAND": "AUDIO VECTOR",
                 "MODEL": "QR 5",
                 "TYPE": "LEFT RIGHT",
-                "PRICE": 484000,
-                "COUNT": 2
-            },
-            {
-                "BRAND": "AUDIO VECTOR",
-                "MODEL": "QR7",
-                "TYPE": "LEFT RIGHT",
-                "PRICE": 672000,
+                "PRICE": 484000.0,
                 "COUNT": 2
             },
             {
                 "BRAND": "AUDIO VECTOR",
                 "MODEL": "QR CENTER",
                 "TYPE": "CENTER",
-                "PRICE": 165000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "AUDIO VECTOR",
-                "MODEL": "RC ARRETE",
-                "TYPE": "CENTER",
-                "PRICE": 465000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "AUDIO VECTOR",
-                "MODEL": "R C AVANTGARDE",
-                "TYPE": "CENTER",
-                "PRICE": 385000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "AUDIO VECTOR",
-                "MODEL": "R C SIGNATURE",
-                "TYPE": "CENTER",
-                "PRICE": 325000,
+                "PRICE": 165000.0,
                 "COUNT": 1
             },
             {
                 "BRAND": "AUDIO VECTOR",
                 "MODEL": "QR WALL",
-                "TYPE": "SURROUND",
-                "PRICE": 100000,
+                "TYPE": "SURROUND ",
+                "PRICE": 100000.0,
                 "COUNT": 1
             },
             {
                 "BRAND": "AUDIO VECTOR",
                 "MODEL": "QR SUB",
                 "TYPE": "SUB",
-                "PRICE": 230000,
+                "PRICE": 230000.0,
                 "COUNT": 1
             },
             {
                 "BRAND": "AUDIO VECTOR",
-                "MODEL": "R SUB ARRETE",
-                "TYPE": "SUB",
-                "PRICE": 415000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "AUDIO VECTOR",
-                "MODEL": "SS82 ",
-                "TYPE": "ATMOS",
-                "PRICE": 38000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "AUDIO VECTOR",
-                "MODEL": " IQ8S",
-                "TYPE": "ATMOS",
-                "PRICE": 21000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "ORBID SOUND",
-                "MODEL": "TELESTO",
-                "TYPE": "LEFT RIGHT",
-                "PRICE": 500000,
-                "COUNT": 2
-            },
-            {
-                "BRAND": "ORBID SOUND",
-                "MODEL": "JUPITER",
-                "TYPE": "LEFT RIGHT",
-                "PRICE": 740000,
-                "COUNT": 2
-            },
-            {
-                "BRAND": "ORBID SOUND",
-                "MODEL": "BIG CINEMA CENTER",
-                "TYPE": "CENTER",
-                "PRICE": 310000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "ORBID SOUND",
-                "MODEL": "KOMET",
-                "TYPE": "SURROUND",
-                "PRICE": 115000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "ORBID SOUND",
-                "MODEL": "TERRA III",
-                "TYPE": "SUB",
-                "PRICE": 298000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "ORBID SOUND",
-                "MODEL": "TERRA II",
-                "TYPE": "SUB",
-                "PRICE": 235000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "ORBID SOUND",
-                "MODEL": "SS82 ",
-                "TYPE": "ATMOS",
-                "PRICE": 38000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "ORBID SOUND",
-                "MODEL": " IQ8S",
-                "TYPE": "ATMOS",
-                "PRICE": 21000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "SYSTEM AUDIO "
-            },
-            {
-                "BRAND": "ORBID SOUND",
-                "MODEL": "SIGNATURE 6",
-                "TYPE": "SURROUND",
-                "PRICE": 91000,
-                "COUNT": 1
-            },
-            {
-                "BRAND": "ORBID SOUND",
                 "MODEL": "SS82 ",
                 "TYPE": "ATMOS ",
-                "PRICE": 38000,
+                "PRICE": 38000.0,
                 "COUNT": 1
             },
             {
-                "BRAND": "ORBID SOUND",
+                "BRAND": "AUDIO VECTOR",
                 "MODEL": " IQ8S",
                 "TYPE": "ATMOS ",
-                "PRICE": 21000,
+                "PRICE": 21000.0,
                 "COUNT": 1
             }
         ]
