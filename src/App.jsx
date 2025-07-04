@@ -8,6 +8,7 @@ import Surround from './components/Surround'
 import Testdata from './components/testdata'
 import UploadScreen from './components/UploadScreen'
 import UploadProjector from './components/UploadProjector'
+import UploadSurround from './components/UploadSurround'
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path='/test' element={<Testdata />}/>
         <Route path='/screen' element={<UploadScreen/>}/>
         <Route path='/proj' element={<UploadProjector/>}/>
+        <Route path='/surr' element={<UploadSurround/>}/>
 
       </Routes>
     </Router>

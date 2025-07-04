@@ -14,13 +14,13 @@ function DataEntryPage() {
     const surroundVersions = [
         { name: "5.1 System", value: "5.1", TrueValue: "5.1" },
         { name: "7.1 System", value: "7.1", TrueValue: "7.1" },
-        { name: "7.2 System", value: "7.2", TrueValue: "7.2" },
+        { name: "7.2 System", value: "7.1", TrueValue: "7.2" },
         { name: "9.1 System", value: "9.1", TrueValue: "9.1"  },
-        { name: "9.2 System", value: "9.2", TrueValue: "9.2"  },
+        { name: "9.2 System", value: "9.1", TrueValue: "9.2"  },
         { name: "11.1 System", value: "11.1", TrueValue: "11.1"  },
-        { name: "11.2 System", value: "11.2", TrueValue: "11.2"  },
+        { name: "11.2 System", value: "11.1", TrueValue: "11.2"  },
         { name: "13.1 System", value: "13.1", TrueValue: "13.1"  },
-        { name: "13.2 System", value: "13.2", TrueValue: "13.2"  },
+        { name: "13.2 System", value: "13.1", TrueValue: "13.2"  },
     ];
 
     useEffect(() => {
