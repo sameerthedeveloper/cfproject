@@ -37,16 +37,13 @@ const SpeakerDropdown = ({ label, options, value, onChange }) => (
 
         {label === 'Atmos' && <option value="none">No Atmos</option>}
         {label === 'Signature Screen Ratio' && <option value="none">No Screen</option>}
-        {label === 'Projector' && <option value="none">No Projector</option>}
+        {label === 'Projector Brand' && <option value="none">No Projector</option>}
         {label === 'Rear Back Surround' && <option value="none">None</option>}
-        {}
+        { }
         {options.map((item, i) =>
-          label !== 'Projector'  ? (
-            <option key={i} value={item.MODEL}>{item.MODEL}</option>
-          ) : (
-            <option key={i} value={item.MODEL}>{item.MODEL} ({item.BRAND}) </option>
-          )
-        )}
+  <option key={item.MODEL} value={item.MODEL}>{item.MODEL}</option>
+)}
+
       </select>
     </div>
   </div>
@@ -57,8 +54,9 @@ function SurroundSpeakers({ type, brand }) {
   const [selections, setSelections] = useState({});
   const [commonOptions, setCommonOptions] = useState({});
   const [selectedRatio, setSelectedRatio] = useState('default');
+  const [projectorSelection, setProjectorSelection] = useState('default');
 
-  
+
 
   useEffect(() => {
     setSelections({});
@@ -148,20 +146,79 @@ function SurroundSpeakers({ type, brand }) {
           label={label}
           options={getModelByBrand(data.filter((item) => item.TYPE === firestoreType), 'MODEL', brand)}
           value={selections[label] || ''}
-          onChange={handleSelectionChange(label)}
+          onChange={(e) => { handleSelectionChange(label) }}
         />
       ))}
 
       {/* Amplifier and Projector */}
-      {["Amplifier", "Projector"].map((label) => (
+{["Amplifier", "Projector"].map((label) => (
+  <React.Fragment key={label}>
+    {label === 'Amplifier' && (
+      <SpeakerDropdown
+        label={label}
+        options={commonOptions[label] || []}
+        value={selections[label] || ''}
+        onChange={handleSelectionChange(label)}
+      />
+    )}
+
+    {label === 'Projector' && (
+      <>
+        {/* Projector Brand Dropdown */}
         <SpeakerDropdown
-          key={label}
-          label={label}
-          options={commonOptions[label] || []}
-          value={selections[label] || ''}
-          onChange={handleSelectionChange(label)}
+          label="Projector Brand"
+          options={
+            Array.from(new Set((commonOptions["Projector"] || []).map(p => p.BRAND)))
+              .map(brand => ({ MODEL: brand }))
+          }
+          value={selections["Projector Brand"] || ''}
+          onChange={(e) => {
+            const brand = e.target.value;
+            setSelections(prev => ({
+              ...prev,
+              "Projector Brand": brand,
+              "Projector": '', // reset model on brand change
+            }));
+          }}
         />
-      ))}
+
+        {/* Projector Model Dropdown */}
+        {selections["Projector Brand"] &&
+          selections["Projector Brand"] !== 'default' &&
+          selections["Projector Brand"] !== 'none' && (
+            <SpeakerDropdown
+              label="Projector"
+              options={(commonOptions["Projector"] || [])
+                .filter(p => p.BRAND === selections["Projector Brand"])
+                .map(p => ({ MODEL: p.MODEL }))}
+              value={selections["Projector"] || ''}
+              onChange={(e) => {
+                const model = e.target.value;
+                setSelections(prev => ({ ...prev, "Projector": model }));
+                setProjectorSelection(model);
+              }}
+            />
+        )}
+
+        {/* Projector Price Input */}
+        {projectorSelection !== 'default' &&
+          projectorSelection !== 'none' &&
+          selections["Projector Brand"] !== 'none' && (
+            <div className='m-5 p-4 border-1 border-gray-400 rounded-xl shadow-md'>
+              <h1 className='font-semibold text-md'>Custom Projector Price</h1>
+              <input
+                type='number'
+                inputMode='numeric'
+                placeholder='Enter The Custom Price'
+                className='flex-1 mt-2 w-full bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center'
+              />
+            </div>
+        )}
+      </>
+    )}
+  </React.Fragment>
+))}
+
 
       {/* Signature Screen Ratio Selector */}
       <SpeakerDropdown
@@ -172,7 +229,7 @@ function SurroundSpeakers({ type, brand }) {
         onChange={(e) => {
           setSelectedRatio(e.target.value);
           console.log("Selected Ratio:", e.target.value);
-          
+
           setSelections(prev => ({ ...prev, ["Signature Screen Ratio"]: e.target.value }));
         }}
       />
@@ -189,22 +246,20 @@ function SurroundSpeakers({ type, brand }) {
           />
           <div className='m-5 p-4 border-1 border-gray-400 rounded-xl shadow-md'>
             <h1 className='font-semibold text-md'>Custom Screen Price</h1>
-            <input type='number' inputMode='numeric' placeholder='Enter The Custom Price' className='flex-1 mt-2 w-full bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center'/>
+            <input type='number' inputMode='numeric' placeholder='Enter The Custom Price' className='flex-1 mt-2 w-full bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center' />
           </div>
 
           <div className='m-5 p-4 border-1 border-gray-400 rounded-xl shadow-md'>
             <h1 className='font-semibold text-md'>Custom Lens Price</h1>
-            <input type='number' inputMode='numeric' placeholder='Enter The Custom Price' className='flex-1 mt-2 w-full bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center'/>
+            <input type='number' inputMode='numeric' placeholder='Enter The Custom Price' className='flex-1 mt-2 w-full bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center' />
           </div>
         </>
       )}
 
-      
-      {anySelected && (
-        // 
-        <></>
-      )}
+
+
     </div>
+
   );
 }
 

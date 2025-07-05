@@ -53,13 +53,13 @@ function DataEntryPage() {
 
     return (
         <div className="h-screen bg-white">
-            <div className="p-5 border-b shadow sticky top-0 bg-white z-10">
+            <div className="p-5 border-b border-gray-200 shadow sticky top-0 bg-white z-10">
                 <h1 className="font-semibold font-stretch-extra-condensed text-3xl">Cinema Focus</h1>
             </div>
 
             {activeTab === 'home' && (
                 <div className='home mb-20 overflow-scroll'>
-                    <div className="m-5 p-4 border rounded-xl shadow-md">
+                    <div className="m-5 p-4 border border-gray-400 rounded-xl shadow-md">
                         <h1 className="font-semibold text-md">Choose The Surround Version</h1>
                         <div className="flex-1 mt-2 bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center">
                             <select
@@ -77,7 +77,7 @@ function DataEntryPage() {
                         </div>
                     </div>
 
-                    <div className="m-5 p-4 border rounded-xl shadow-md">
+                    <div className="m-5 p-4 border border-gray-400 rounded-xl shadow-md">
                         <h1 className='font-semibold text-md'>Choose The Brand</h1>
                         <div className='flex-1 mt-2 bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center'>
                             <select
@@ -108,11 +108,11 @@ function DataEntryPage() {
 
             {activeTab === 'invoice' && (
                 <div className='invoice mb-20'>
-                    <div className="m-5 p-4 border rounded-xl shadow-md">
-                        <h1 className="font-semibold text-md">Invoice Section</h1>
+
+                        {/* <h1 className="font-semibold text-md">Invoice Section</h1> */}
                         <PdfQuotation />
                     </div>
-                </div>
+
             )}
 
 

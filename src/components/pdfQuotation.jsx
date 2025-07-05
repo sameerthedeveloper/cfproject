@@ -33,46 +33,6 @@ const QuotationPDF = () => {
               <th className="p-2 bg-gray-100">Signature Screen</th>
               <td className="p-2" id="quote-series">-</td>
             </tr>
-            <tr className="border">
-              <th className="p-2 bg-gray-100">Screen W x H</th>
-              <td className="p-2"><span id="quote-hv-panels">-</span></td>
-            </tr>
-            <tr className="border">
-              <th className="p-2 bg-gray-100">Panel Count</th>
-              <td className="p-2"><span id="quote-panel-count">-</span></td>
-            </tr>
-            <tr className="border">
-              <th className="p-2 bg-gray-100">Diagonal</th>
-              <td className="p-2"><span id="quote-diag">-</span> inches</td>
-            </tr>
-            <tr className="border">
-              <th className="p-2 bg-gray-100">Area (sq.ft)</th>
-              <td className="p-2"><span id="quote-area-ft">-</span> ft²</td>
-            </tr>
-            <tr className="border">
-              <th className="p-2 bg-gray-100">W/H (mm) (With Wood Work)</th>
-              <td className="p-2"><span id="quote-mm-ww">-</span> mm</td>
-            </tr>
-            <tr className="border">
-              <th className="p-2 bg-gray-100">W/H (in) (With Wood Work)</th>
-              <td className="p-2"><span id="quote-h-ww">-</span> in</td>
-            </tr>
-            <tr className="border">
-              <th className="p-2 bg-gray-100">W/H (mm) (Without Wood Work)</th>
-              <td className="p-2"><span id="quote-hw-mm">-</span> mm</td>
-            </tr>
-            <tr className="border">
-              <th className="p-2 bg-gray-100">W/H (in) (Without Wood Work)</th>
-              <td className="p-2"><span id="quote-hw-in">-</span> in</td>
-            </tr>
-            <tr className="border">
-              <th className="p-2 bg-gray-100">Resolution</th>
-              <td className="p-2" id="quote-res">-</td>
-            </tr>
-            <tr className="border">
-              <th className="p-2 bg-gray-100">Total Pixels</th>
-              <td className="p-2" id="quote-total-pixels">-</td>
-            </tr>
           </tbody>
         </table>
 
@@ -93,7 +53,7 @@ const QuotationPDF = () => {
               <td className="p-2 border" id="quote-total-price">-</td>
               <td className="p-2 border" id="quote-total-gst">-</td>
             </tr>
-            <tr className="border">
+            {/* <tr className="border">
               <td className="p-2 border">Processor</td>
               <td className="p-2 border" id="quote-processor">-</td>
               <td className="p-2 border" id="quote-processor-price">-</td>
@@ -114,7 +74,7 @@ const QuotationPDF = () => {
             <tr className="border font-bold">
               <td className="p-2 border" colSpan={3}>Grand Total incl GST</td>
               <td className="p-2 border gt" rowSpan={2} id="quote-grand-total-gst">-</td>
-            </tr>
+            </tr> */}
           </tbody>
         </table>
 
@@ -144,10 +104,10 @@ const QuotationPDF = () => {
         </div>
       </div>
 
-      <div className="flex flex-col m-4 bg-white p-3 gap-2 rounded-2xl shadow-2xl mb-20 dark:bg-gray-700 dark:text-white">
+      <div className="flex flex-col m-4 bg-white p-3 gap-2 rounded-2xl  mb-20">
         <button
           onClick={() => window.generatePDF?.()}
-          className="no-print bg-blue-200 p-3 rounded-xl shadow border border-black flex justify-center items-center dark:bg-gray-700 dark:text-white"
+          className="no-print bg-amber-200 p-3 rounded-xl shadow-xl border border-black flex justify-center items-center"
         >
           Print Quotation
         </button>
