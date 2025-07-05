@@ -3,18 +3,24 @@ import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import SurroundSpeakers from './SurroundSpeakers';
 import PdfQuotation from './pdfQuotation';
+import DispayData from './DispayData';
 
 function DataEntryPage() {
     const [surroundType, setSurroundType] = useState('');
     const [brand, setBrand] = useState('');
     const [data, setData] = useState([]);
     const [activeTab, setActiveTab] = useState('home');
-    const [speakerSelections, setSpeakerSelections] = useState({});
     const [fullSelectionData, setFullSelectionData] = useState({
         surroundType: '',
         brand: '',
         selections: {}
     });
+
+    const tabs = [
+        { tab: 'home', icon: 'fa-house', label: 'Main' },
+        { tab: 'data', icon: 'fa-file', label: 'Data' },
+        { tab: 'invoice', icon: 'fa-file-invoice-dollar', label: 'Invoice' }
+    ];
 
     const surroundVersions = [
         { name: "5.1 System", value: "5.1" },
@@ -28,7 +34,6 @@ function DataEntryPage() {
         { name: "13.2 System", value: "13.2" },
     ];
 
-    // 🔁 Fetch data when surround type is selected
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -42,11 +47,10 @@ function DataEntryPage() {
 
         if (surroundType) {
             fetchData();
-            setBrand(''); // Reset brand when surround changes
+            setBrand('');
         }
     }, [surroundType]);
 
-    // 🧠 Utility: Get unique brands
     const getUniqueByKey = (arr, key) => {
         const seen = new Set();
         return arr.filter((item) => {
@@ -58,19 +62,17 @@ function DataEntryPage() {
         });
     };
 
-    // 🖱 Surround selector
     const handleSurroundTypeChange = (e) => {
         const type = e.target.value;
         setSurroundType(type);
         setFullSelectionData((prev) => ({
             ...prev,
             surroundType: type,
-            brand: '',            // Reset brand
-            selections: {}        // Reset selections
+            brand: '',
+            selections: {}
         }));
     };
 
-    // 🖱 Brand selector
     const handleBrandChange = (e) => {
         const brandName = e.target.value;
         setBrand(brandName);
@@ -80,30 +82,21 @@ function DataEntryPage() {
         }));
     };
 
-    // 🔁 Receive selections from child
     const handleSelectionsChange = (newSelections) => {
-        setSpeakerSelections(newSelections);
         setFullSelectionData((prev) => ({
             ...prev,
             selections: newSelections
         }));
     };
 
-    useEffect(() => {
-        console.log("📦 Full Selection Payload:", fullSelectionData);
-    }, [fullSelectionData]);
-
     return (
         <div className="h-screen bg-white">
-            {/* Sticky Header */}
             <div className="p-5 border-b border-gray-200 shadow sticky top-0 bg-white z-10">
                 <h1 className="font-semibold text-3xl">Cinema Focus</h1>
             </div>
 
-            {/* Home Tab */}
             {activeTab === 'home' && (
                 <div className='home mb-20 overflow-scroll'>
-                    {/* Surround Dropdown */}
                     <div className="m-5 p-4 border border-gray-400 rounded-xl shadow-md">
                         <h1 className="font-semibold text-md">Choose The Surround Version</h1>
                         <div className="mt-2 bg-amber-100 p-3 rounded-xl border border-black flex justify-center items-center">
@@ -122,7 +115,6 @@ function DataEntryPage() {
                         </div>
                     </div>
 
-                    {/* Brand Dropdown */}
                     <div className="m-5 p-4 border border-gray-400 rounded-xl shadow-md">
                         <h1 className='font-semibold text-md'>Choose The Brand</h1>
                         <div className='mt-2 bg-amber-100 p-3 rounded-xl border border-black flex justify-center items-center'>
@@ -139,40 +131,30 @@ function DataEntryPage() {
                         </div>
                     </div>
 
-                    {/* Surround Configuration Component */}
                     <SurroundSpeakers
                         type={surroundType}
                         brand={brand}
+                        initialSelections={fullSelectionData.selections}
                         onSelectionsChange={handleSelectionsChange}
                     />
+
+
                 </div>
             )}
 
-            {/* Data Tab */}
             {activeTab === 'data' && (
-                <div className='invoice mb-20'>
-                    <div className="m-5 p-4 border rounded-xl shadow-md">
-                        <h1 className="font-semibold text-md">Data Section</h1>
-                        {/* Reserved for future use */}
-                    </div>
-                </div>
+                <DispayData data={fullSelectionData} />
             )}
 
-            {/* Invoice Tab */}
             {activeTab === 'invoice' && (
                 <div className='invoice mb-20'>
                     <PdfQuotation data={fullSelectionData} />
                 </div>
             )}
 
-            {/* Bottom Navigation */}
             <div className="w-full fixed bottom-0 bg-white shadow-xl border-t border-gray-200 z-50 lg:hidden">
                 <div className="flex justify-around items-center py-3">
-                    {[
-                        { tab: 'home', icon: 'fa-house', label: 'Main' },
-                        { tab: 'data', icon: 'fa-file', label: 'Data' },
-                        { tab: 'invoice', icon: 'fa-file-invoice-dollar', label: 'Invoice' }
-                    ].map(({ tab, icon, label }) => (
+                    {tabs.map(({ tab, icon, label }) => (
                         <div
                             key={tab}
                             className={`flex flex-col items-center cursor-pointer ${activeTab === tab ? 'text-black' : 'text-gray-500 hover:text-black'}`}

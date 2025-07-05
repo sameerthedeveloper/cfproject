@@ -4,8 +4,8 @@ import { db } from '../firebase';
 
 const CONFIG = {
   '5.1': { 'Left & Right': 'LEFT RIGHT', 'Center Speaker': 'CENTER', 'Surround (2 Channel)': 'SURROUND', 'Subwoofer': 'SUB' },
-  '7.2': { 'Left & Right': 'LEFT RIGHT', 'Center Speaker': 'CENTER', 'Surround (2 Channel)': 'SURROUND', 'Rear Surround (2 Channel)': 'SURROUND', 'Rear Back Surround': 'SURROUND', 'Atmos': 'ATMOS', 'Subwoofer': 'SUB' },
   '7.1': { 'Left & Right': 'LEFT RIGHT', 'Center Speaker': 'CENTER', 'Surround (2 Channel)': 'SURROUND', 'Rear Surround (2 Channel)': 'SURROUND', 'Subwoofer': 'SUB' },
+  '7.2': { 'Left & Right': 'LEFT RIGHT', 'Center Speaker': 'CENTER', 'Surround (2 Channel)': 'SURROUND', 'Rear Surround (2 Channel)': 'SURROUND', 'Atmos': 'ATMOS', 'Subwoofer': 'SUB' },
   '9.1': { 'Left & Right': 'LEFT RIGHT', 'Center Speaker': 'CENTER', 'Surround (2 Channel)': 'SURROUND', 'Rear Surround (2 Channel)': 'SURROUND', 'Rear Back Surround': 'SURROUND', 'Atmos': 'ATMOS', 'Subwoofer': 'SUB' },
   '9.2': { 'Left & Right': 'LEFT RIGHT', 'Center Speaker': 'CENTER', 'Surround (2 Channel)': 'SURROUND', 'Rear Surround (2 Channel)': 'SURROUND', 'Rear Back Surround': 'SURROUND', 'Atmos': 'ATMOS', 'Subwoofer': 'SUB' },
   '11.1': { 'Left & Right': 'LEFT RIGHT', 'Center Speaker': 'CENTER', 'Surround (2 Channel)': 'SURROUND', 'Rear Surround (2 Channel)': 'SURROUND', 'Rear Back Surround': 'SURROUND', 'Atmos': 'ATMOS', 'Subwoofer': 'SUB' },
@@ -15,7 +15,6 @@ const CONFIG = {
 };
 
 const COMMON_COMPONENTS = ['Amplifier', 'Projector', 'Signature Screen Ratio', 'Signature Screen'];
-
 const collectionMap = {
   'Amplifier': 'Amplifiers',
   'Projector': 'Projectors',
@@ -30,7 +29,7 @@ const SpeakerDropdown = ({ label, options, value, onChange }) => (
       <select
         required
         className='bg-amber-100 w-full text-sm font-medium outline-none text-center'
-        value={value}
+        value={value || ''}
         onChange={onChange}
       >
         <option value="default">Select</option>
@@ -39,32 +38,33 @@ const SpeakerDropdown = ({ label, options, value, onChange }) => (
         {label === 'Signature Screen Ratio' && <option value="none">No Screen</option>}
         {label === 'Projector Brand' && <option value="none">No Projector</option>}
         {options.map((item, i) => (
-          <option key={item.MODEL} value={item.MODEL}>{item.MODEL}</option>
+          <option key={`${label}-${item.MODEL}-${i}`} value={item.MODEL}>{item.MODEL}</option>
         ))}
       </select>
     </div>
   </div>
 );
 
-function SurroundSpeakers({ type, brand, onSelectionsChange }) {
-  const [data, setData] = useState([]);
+function SurroundSpeakers({ type, brand, onSelectionsChange, initialSelections = {} }) {
   const [selections, setSelections] = useState({});
+  const [data, setData] = useState([]);
   const [commonOptions, setCommonOptions] = useState({});
   const [selectedRatio, setSelectedRatio] = useState('default');
   const [projectorSelection, setProjectorSelection] = useState('default');
 
   const layout = CONFIG[type] || {};
 
-  // 🔁 Sync selections to parent
   useEffect(() => {
-    if (onSelectionsChange) onSelectionsChange(selections);
-  }, [selections]);
+  setSelections(initialSelections || {});
+  setSelectedRatio(initialSelections['Signature Screen Ratio'] || 'default');
+  setProjectorSelection(initialSelections['Projector'] || 'default');
+}, [type, brand]);
 
-  useEffect(() => {
-    setSelections({});
-    setSelectedRatio('default');
-    setProjectorSelection('default');
-  }, [type, brand]);
+
+useEffect(() => {
+  if (onSelectionsChange) onSelectionsChange(selections);
+}, [selections]);
+
 
   useEffect(() => {
     const fetchModels = async () => {
@@ -76,7 +76,6 @@ function SurroundSpeakers({ type, brand, onSelectionsChange }) {
         console.error('Error fetching speaker data:', err);
       }
     };
-
     if (type) fetchModels();
   }, [type]);
 
@@ -123,7 +122,7 @@ function SurroundSpeakers({ type, brand, onSelectionsChange }) {
   }, []);
 
   const handleSelectionChange = (label) => (e) => {
-    setSelections((prev) => ({
+    setSelections(prev => ({
       ...prev,
       [label]: e.target.value
     }));
@@ -131,7 +130,7 @@ function SurroundSpeakers({ type, brand, onSelectionsChange }) {
 
   const getModelByBrand = (arr, key, brand) => {
     const seen = new Set();
-    return arr.filter((item) => {
+    return arr.filter(item => {
       if (item[key] && item.BRAND === brand && !seen.has(item[key])) {
         seen.add(item[key]);
         return true;
@@ -142,19 +141,16 @@ function SurroundSpeakers({ type, brand, onSelectionsChange }) {
 
   return (
     <div className='mb-20'>
-
-      {/* Speakers */}
       {Object.entries(layout).map(([label, firestoreType]) => (
         <SpeakerDropdown
           key={label}
           label={label}
-          options={getModelByBrand(data.filter((item) => item.TYPE === firestoreType), 'MODEL', brand)}
+          options={getModelByBrand(data.filter(item => item.TYPE === firestoreType), 'MODEL', brand)}
           value={selections[label] || ''}
           onChange={handleSelectionChange(label)}
         />
       ))}
 
-      {/* Amplifier */}
       <SpeakerDropdown
         label="Amplifier"
         options={commonOptions["Amplifier"] || []}
@@ -162,7 +158,6 @@ function SurroundSpeakers({ type, brand, onSelectionsChange }) {
         onChange={handleSelectionChange("Amplifier")}
       />
 
-      {/* Projector Brand */}
       <SpeakerDropdown
         label="Projector Brand"
         options={[...(new Set((commonOptions["Projector"] || []).map(p => p.BRAND)))].map(b => ({ MODEL: b }))}
@@ -177,7 +172,6 @@ function SurroundSpeakers({ type, brand, onSelectionsChange }) {
         }}
       />
 
-      {/* Projector Model */}
       {selections["Projector Brand"] && selections["Projector Brand"] !== 'none' && (
         <SpeakerDropdown
           label="Projector"
@@ -191,7 +185,6 @@ function SurroundSpeakers({ type, brand, onSelectionsChange }) {
         />
       )}
 
-      {/* Projector Custom Price */}
       {projectorSelection !== 'default' && projectorSelection !== 'none' && (
         <div className='m-5 p-4 border border-gray-400 rounded-xl shadow-md'>
           <h1 className='font-semibold text-md'>Custom Projector Price</h1>
@@ -210,7 +203,6 @@ function SurroundSpeakers({ type, brand, onSelectionsChange }) {
         </div>
       )}
 
-      {/* Signature Screen Ratio */}
       <SpeakerDropdown
         label="Signature Screen Ratio"
         options={commonOptions["Signature Screen Ratio"] || []}
@@ -226,7 +218,6 @@ function SurroundSpeakers({ type, brand, onSelectionsChange }) {
         }}
       />
 
-      {/* Screen Size + Price + Lens */}
       {selectedRatio !== 'none' && selectedRatio !== 'default' && (
         <>
           <SpeakerDropdown
