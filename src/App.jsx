@@ -13,7 +13,7 @@ import UploadSurround from './components/UploadSurround'
 
 function App() {
   return (
-    <Router basename="/"> {/* 👈 Add this line */}
+    <Router basename="/cfproject"> {/* 👈 Add this line */}
       <Routes>
         <Route path="/" element={<DataEntryPage />} />
         <Route path="/manage" element={<Audio />} />
