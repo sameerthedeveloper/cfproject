@@ -1,23 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { db } from '../firebase';
-import surroundData from '../assets/surroundData.json';
+import React, { useEffect, useState } from "react";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+import { db } from "../firebase";
+
+const formatPrice = (price) => {
+  if (!price) return "";
+  return new Intl.NumberFormat("en-IN").format(price);
+};
+
+const surroundTypes = [
+  "5.1",
+  "7.1",
+  "7.2",
+  "9.1",
+  "9.2",
+  "11.1",
+  "11.2",
+  "13.1",
+  "13.2",
+];
 
 const UploadSurround = () => {
   const [items, setItems] = useState([]);
   const [customItem, setCustomItem] = useState({
-    surround: '',
-    BRAND: '',
-    MODEL: '',
-    TYPE: '',
-    PRICE: '',
-    COUNT: '',
+    surround: "",
+    BRAND: "",
+    MODEL: "",
+    TYPE: "",
+    PRICE: "",
+    COUNT: "",
   });
-  const [jsonInput, setJsonInput] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSurround, setSelectedSurround] = useState('All');
-
-  const surroundTypes = Object.keys(surroundData);
+  const [jsonInput, setJsonInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSurround, setSelectedSurround] = useState("All");
+  const [selectedBrand, setSelectedBrand] = useState("All");
 
   const fetchData = async () => {
     const results = [];
@@ -30,27 +51,10 @@ const UploadSurround = () => {
     setItems(results);
   };
 
-  const handleDefaultUpload = async () => {
-    try {
-      for (const [surroundType, groups] of Object.entries(surroundData)) {
-        for (const group of groups) {
-          for (const item of group) {
-            await addDoc(collection(db, surroundType), item);
-          }
-        }
-      }
-      alert('✅ Surround data uploaded!');
-      fetchData();
-    } catch (error) {
-      console.error('Upload failed:', error);
-      alert('❌ Upload failed. Check console.');
-    }
-  };
-
   const handleCustomUpload = async () => {
     const { surround, BRAND, MODEL, TYPE, PRICE, COUNT } = customItem;
     if (!surround || !BRAND || !MODEL || !TYPE || !PRICE || !COUNT) {
-      alert('Please fill all fields');
+      alert("Please fill all fields");
       return;
     }
     try {
@@ -61,21 +65,33 @@ const UploadSurround = () => {
         PRICE: parseFloat(PRICE),
         COUNT,
       });
-      alert('✅ Custom speaker added!');
+      alert("✅ Custom speaker added!");
       setCustomItem({
-        surround: '',
-        BRAND: '',
-        MODEL: '',
-        TYPE: '',
-        PRICE: '',
-        COUNT: '',
+        surround: "",
+        BRAND: "",
+        MODEL: "",
+        TYPE: "",
+        PRICE: "",
+        COUNT: "",
       });
       fetchData();
     } catch (error) {
-      console.error('Custom upload failed:', error);
-      alert('❌ Failed to add custom speaker.');
+      console.error("Custom upload failed:", error);
+      alert("❌ Failed to add custom speaker.");
     }
   };
+
+  const brandList = [
+    "All",
+    ...new Set(
+      items
+        .filter(
+          (i) => selectedSurround === "All" || i.surround === selectedSurround
+        )
+        .map((i) => i.BRAND)
+        .filter(Boolean)
+    ),
+  ];
 
   const handleJsonUpload = async () => {
     try {
@@ -83,20 +99,26 @@ const UploadSurround = () => {
       for (const [surroundType, groups] of Object.entries(parsed)) {
         for (const group of groups) {
           for (const item of group) {
-            if (!item.BRAND || !item.MODEL || !item.TYPE || !item.PRICE || !item.COUNT) {
-              alert('Invalid JSON format.');
+            if (
+              !item.BRAND ||
+              !item.MODEL ||
+              !item.TYPE ||
+              !item.PRICE ||
+              !item.COUNT
+            ) {
+              alert("Invalid JSON format.");
               return;
             }
             await addDoc(collection(db, surroundType), item);
           }
         }
       }
-      alert('✅ JSON uploaded!');
-      setJsonInput('');
+      alert("✅ JSON uploaded!");
+      setJsonInput("");
       fetchData();
     } catch (err) {
-      console.error('JSON Upload Error:', err);
-      alert('❌ Invalid JSON input.');
+      console.error("JSON Upload Error:", err);
+      alert("❌ Invalid JSON input.");
     }
   };
 
@@ -105,15 +127,18 @@ const UploadSurround = () => {
       await deleteDoc(doc(db, surround, id));
       fetchData();
     } catch (err) {
-      console.error('Delete failed:', err);
+      console.error("Delete failed:", err);
     }
   };
 
   const filteredItems = items.filter((item) => {
-    const model = item.MODEL || '';
-    const matchModel = model.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchSurround = selectedSurround === 'All' || item.surround === selectedSurround;
-    return matchModel && matchSurround;
+    const matchModel = item.MODEL?.toLowerCase().includes(
+      searchTerm.toLowerCase()
+    );
+    const matchSurround =
+      selectedSurround === "All" || item.surround === selectedSurround;
+    const matchBrand = selectedBrand === "All" || item.BRAND === selectedBrand;
+    return matchModel && matchSurround && matchBrand;
   });
 
   useEffect(() => {
@@ -121,30 +146,32 @@ const UploadSurround = () => {
   }, []);
 
   return (
-    <div className="p-4 max-w-7xl mx-auto">
-      <div className="flex flex-col lg:flex-row gap-6">
+    <div className="p-4 h-screen w-full  mx-auto">
+      <div className="flex w-full flex-col lg:flex-row gap-6">
         {/* LEFT COLUMN */}
-        <div className="w-full lg:w-1/2 space-y-6">
-          <button
-            onClick={handleDefaultUpload}
-            className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-800"
-          >
-            Upload Default Surround JSON
-          </button>
+        <div className="lg:w-1/2  space-y-6">
+          <h1 className="text-3xl font-bold mb-4">Upload Surround Speakers</h1>
 
           {/* Custom Upload */}
           <div className="border p-4 rounded shadow bg-white space-y-2">
             <h2 className="text-lg font-semibold">Add Custom Speaker</h2>
-            {['surround', 'BRAND', 'MODEL', 'TYPE', 'PRICE', 'COUNT'].map((field) => (
-              <input
-                key={field}
-                name={field}
-                placeholder={field}
-                value={customItem[field]}
-                onChange={(e) => setCustomItem((prev) => ({ ...prev, [field]: e.target.value }))}
-                className="w-full border p-2 rounded"
-              />
-            ))}
+            {["surround", "BRAND", "MODEL", "TYPE", "PRICE", "COUNT"].map(
+              (field) => (
+                <input
+                  key={field}
+                  name={field}
+                  placeholder={field}
+                  value={customItem[field]}
+                  onChange={(e) =>
+                    setCustomItem((prev) => ({
+                      ...prev,
+                      [field]: e.target.value,
+                    }))
+                  }
+                  className="w-full border p-2 rounded"
+                />
+              )
+            )}
             <button
               onClick={handleCustomUpload}
               className="bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-800"
@@ -173,17 +200,17 @@ const UploadSurround = () => {
         </div>
 
         {/* RIGHT COLUMN */}
-        <div className="w-full lg:w-1/2 space-y-4">
+        <div className="lg:w-1/2  space-y-4 h-screen">
           <h2 className="text-2xl font-bold">Surround Speaker List</h2>
 
           {/* Search/Filter */}
-          <div className="flex gap-4 mb-2">
+          <div className="flex flex-wrap gap-4 mb-2">
             <input
               type="text"
               placeholder="Search by model"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full border px-3 py-2 rounded"
+              className="w-full sm:w-auto flex-1 border px-3 py-2 rounded"
             />
             <select
               value={selectedSurround}
@@ -197,13 +224,24 @@ const UploadSurround = () => {
                 </option>
               ))}
             </select>
+            <select
+              value={selectedBrand}
+              onChange={(e) => setSelectedBrand(e.target.value)}
+              className="border px-3 py-2 rounded"
+            >
+              {brandList.map((brand) => (
+                <option key={brand} value={brand}>
+                  {brand}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Data Table */}
           {filteredItems.length === 0 ? (
             <p>No matching data found.</p>
           ) : (
-            <div className="overflow-x-auto border rounded shadow bg-white">
+            <div className="h-[85%] border-1 border-gray-400 shadow-lg rounded w-full  bg-white overflow-scroll ">
               <table className="min-w-full text-sm">
                 <thead className="bg-gray-200">
                   <tr>
@@ -223,7 +261,9 @@ const UploadSurround = () => {
                       <td className="border px-3 py-2">{item.BRAND}</td>
                       <td className="border px-3 py-2">{item.MODEL}</td>
                       <td className="border px-3 py-2">{item.TYPE}</td>
-                      <td className="border px-3 py-2">₹{item.PRICE}</td>
+                      <td className="border px-3 py-2">
+                        ₹{formatPrice(item.PRICE)}
+                      </td>
                       <td className="border px-3 py-2">{item.COUNT}</td>
                       <td className="border px-3 py-2">
                         <button

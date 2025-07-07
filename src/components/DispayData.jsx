@@ -6,12 +6,28 @@ function DispayData({ data }) {
   const { surroundType, brand, selections } = data;
 
   const renderSelection = () => {
-    return Object.entries(selections).map(([label, value], index) => (
-      <div key={label + '-' + index} className="m-4 p-3 border border-gray-300 rounded shadow">
-        <p className="font-semibold">{label}:</p>
-        <p>{value || 'Not selected'}</p>
-      </div>
-    ));
+    return Object.entries(selections).map(([label, value], index) => {
+      if (value && typeof value === 'object') {
+        return (
+          <div key={label + '-' + index} className="m-4 p-3 border border-gray-300 rounded shadow">
+            <p className="font-semibold">{label}:</p>
+            <p>
+              {value.name || 'Not selected'}
+              {value.price !== undefined && (
+                <span className="ml-2 text-green-700 font-semibold">₹{Number(value.price).toLocaleString()}</span>
+              )}
+            </p>
+          </div>
+        );
+      } else {
+        return (
+          <div key={label + '-' + index} className="m-4 p-3 border border-gray-300 rounded shadow">
+            <p className="font-semibold">{label}:</p>
+            <p>{value || 'Not selected'}</p>
+          </div>
+        );
+      }
+    });
   };
 
   return (

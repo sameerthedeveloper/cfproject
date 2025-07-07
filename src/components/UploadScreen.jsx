@@ -1,93 +1,148 @@
 import React, { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const UploadScreen = () => {
-  const [data, setData] = useState([]);
-  const [uploaded, setUploaded] = useState(false);
+  const [entries, setEntries] = useState([]);
+  const [ratio, setRatio] = useState('');
+  const [size, setSize] = useState('');
+  const [refresh, setRefresh] = useState(false);
+  const [filterRatio, setFilterRatio] = useState('ALL');
+  const [ratiosList, setRatiosList] = useState([]);
 
-  const rawData = {
-    "16:9": [100, 120, 135, 150, 160, 180],
-    "2:3:5": [160.0, 170.0, 200.0, 210.0]
-  };
+  const handleAddEntry = async () => {
+    if (!ratio || !size) {
+      alert('Both Ratio and Size are required');
+      return;
+    }
 
-  // Clean null values and sync both arrays
-  const cleanData = () => {
-    const cleaned235 = rawData["2:3:5"].filter(v => v !== null);
-    const cleaned169 = rawData["16:9"].slice(0, cleaned235.length);
-    return {
-      "16:9": cleaned169,
-      "2:3:5": cleaned235
-    };
-  };
-
-  const uploadData = async () => {
-    const cleaned = cleanData();
     try {
-      await addDoc(collection(db, 'SignatureScreen'), cleaned);
-      alert('Data uploaded successfully!');
-      setUploaded(prev => !prev);
+      await addDoc(collection(db, 'SignatureScreenSizes'), {
+        ratio,
+        size: parseFloat(size),
+      });
+      setRatio('');
+      setSize('');
+      setRefresh(prev => !prev);
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload data.');
+      alert('Failed to upload entry.');
     }
   };
 
-  const fetchData = async () => {
+  const handleDelete = async (id) => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'SignatureScreen'));
-      const docs = [];
-      querySnapshot.forEach((doc) => {
-        docs.push(doc.data());
+      await deleteDoc(doc(db, 'SignatureScreenSizes', id));
+      setRefresh(prev => !prev);
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete entry.');
+    }
+  };
+
+  const fetchEntries = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'SignatureScreenSizes'));
+      const items = [];
+      const ratios = new Set();
+
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        items.push({ id: docSnap.id, ...data });
+        if (data.ratio) {
+          ratios.add(data.ratio);
+        }
       });
-      setData(docs);
+
+      setEntries(items);
+      setRatiosList(['ALL', ...Array.from(ratios)]);
     } catch (error) {
       console.error('Fetch error:', error);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, [uploaded]);
+    fetchEntries();
+  }, [refresh]);
+
+  const filteredEntries = filterRatio === 'ALL'
+    ? entries
+    : entries.filter(entry => entry.ratio === filterRatio);
 
   return (
-    <div className="p-4 max-w-7xl mx-auto">
-      <div className="flex flex-col lg:flex-row gap-6">
-        
-        {/* Left Column */}
-        <div className="w-full lg:w-1/2 space-y-6">
-          <button
-            onClick={uploadData}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800 w-full"
-          >
-            Upload Cleaned Signature Data
-          </button>
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 font-sans text-sm">
+      <h1 className="text-2xl font-semibold text-center">Signature Screen Size Upload</h1>
 
-          <div className="border p-4 bg-white rounded shadow">
-            <h3 className="text-lg font-semibold mb-2">Cleaned Preview</h3>
-            <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">
-              {JSON.stringify(cleanData(), null, 2)}
-            </pre>
-          </div>
-        </div>
+      {/* Form Input */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+        <input
+          type="text"
+          placeholder="Aspect Ratio (e.g., 16:9)"
+          value={ratio}
+          onChange={(e) => setRatio(e.target.value)}
+          className="border rounded px-3 py-2 w-full"
+        />
+        <input
+          type="number"
+          placeholder="Size (e.g., 120)"
+          value={size}
+          onChange={(e) => setSize(e.target.value)}
+          className="border rounded px-3 py-2 w-full"
+        />
+        <button
+          onClick={handleAddEntry}
+          className="bg-blue-600 text-white py-2 rounded hover:bg-blue-800 transition w-full"
+        >
+          Add Entry
+        </button>
+        <select
+          value={filterRatio}
+          onChange={(e) => setFilterRatio(e.target.value)}
+          className="border px-3 py-2 rounded w-full"
+        >
+          {ratiosList.map((r, i) => (
+            <option key={i} value={r}>
+              {r === 'ALL' ? 'All Ratios' : r}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {/* Right Column */}
-        <div className="w-full lg:w-1/2">
-          <h2 className="text-2xl font-bold mb-4">SignatureScreen Data</h2>
-          {data.length === 0 ? (
-            <p>No data found.</p>
-          ) : (
-            <div className="space-y-4">
-              {data.map((entry, index) => (
-                <div key={index} className="border p-3 rounded bg-gray-50 shadow-sm">
-                  <p><strong>16:9:</strong> {entry["16:9"]?.join(', ')}</p>
-                  <p><strong>2:3:5:</strong> {entry["2:3:5"]?.join(', ')}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
+      {/* Table */}
+      <div className="overflow-x-auto border rounded shadow bg-white">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-gray-100 text-gray-700">
+            <tr>
+              <th className="px-4 py-2 border">Aspect Ratio</th>
+              <th className="px-4 py-2 border">Size</th>
+              <th className="px-4 py-2 border text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredEntries.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="text-center px-4 py-4 text-gray-500">
+                  No entries found.
+                </td>
+              </tr>
+            ) : (
+              filteredEntries.map((entry) => (
+                <tr key={entry.id} className="hover:bg-gray-50">
+                  <td className="border px-4 py-2">{entry.ratio}</td>
+                  <td className="border px-4 py-2">{entry.size}</td>
+                  <td className="border px-4 py-2 text-center">
+                    <button
+                      onClick={() => handleDelete(entry.id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-800 transition"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
