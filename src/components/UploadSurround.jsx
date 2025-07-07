@@ -155,7 +155,7 @@ const UploadSurround = () => {
           {/* Custom Upload */}
           <div className="border p-4 rounded shadow bg-white space-y-2">
             <h2 className="text-lg font-semibold">Add Custom Speaker</h2>
-            {["surround", "BRAND", "MODEL", "TYPE", "PRICE", "COUNT"].map(
+            {["SURROUND VERSION", "BRAND", "MODEL", "TYPE", "PRICE", "COUNT"].map(
               (field) => (
                 <input
                   key={field}
@@ -241,7 +241,7 @@ const UploadSurround = () => {
           {filteredItems.length === 0 ? (
             <p>No matching data found.</p>
           ) : (
-            <div className="h-[85%] border-1 border-gray-400 shadow-lg rounded w-full  bg-white overflow-scroll ">
+            <div className="h-[63%] border-1 border-gray-400 shadow-lg rounded w-full  bg-white overflow-scroll ">
               <table className="min-w-full text-sm">
                 <thead className="bg-gray-200">
                   <tr>
