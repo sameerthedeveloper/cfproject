@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 const SIMPLE_SURROUND_OPTIONS = ["No Surround", 2, 4];
@@ -236,11 +236,11 @@ function SurroundSpeakers({
     fetchCommonData();
   }, []);
 
-  const handleSelectionChange = (label,price) => (e) => {
+  const handleSelectionChange = (label, price) => (e) => {
     setSelections((prev) => ({
       ...prev,
       [label]: e.target.value,
-      [`${label} Price`]:e.target.price
+      [`${label} Price`]: e.target.price,
     }));
   };
 
@@ -254,7 +254,7 @@ function SurroundSpeakers({
       return false;
     });
   };
-
+  // Fetch price for a given brand and model, or for all models if model is not provided
   const getPriceByModel = (arr, key, brand, model) => {
     const seen = new Set();
     return arr.filter((item) => {
@@ -265,11 +265,31 @@ function SurroundSpeakers({
         !seen.has(item[key])
       ) {
         seen.add(item[key]);
+        console.log(seen);
+        
+
+        
         return true;
       }
       return false;
     });
   };
+
+useEffect(() => {
+  if (onSelectionsChange) onSelectionsChange(selections);
+}, []);
+
+  const filteredItems = data.filter((item) => item.BRAND === brand);
+const findPriceByModel = (arr, key = "PRICE", brand, model) => {
+  for (const item of arr) {
+    if (item[key] && item.BRAND === brand && item.MODEL === model) {
+      return item[key]; // Should return PRICE number
+    }
+  }
+  return 0; // Return 0 if no match
+};
+
+
 
   const formatPrice = (price) => {
     if (price === null || price === undefined) return "";
@@ -278,92 +298,144 @@ function SurroundSpeakers({
 
   return (
     <div className="mb-20">
-      {Object.entries(layout).map(([label, firestoreType]) => {
-        const filteredItems = data.filter(
-          (item) => item.TYPE === firestoreType
-        );
+{Object.entries(layout).map(([label, firestoreType]) => {
+  const filteredData = data.filter((item) => item.TYPE === firestoreType);
+  const selectedModel = selections[label] || "";
+  const rawPrice = findPriceByModel(filteredData, "PRICE", brand, selectedModel);
+  const formattedPrice = formatPrice(rawPrice);
 
-        if (firestoreType === "SURROUND") {
-          const surroundValue = selections[label];
+  if (firestoreType === "SURROUND") {
+    const surroundOptions = ["No Surround", 2, 4];
+    return (
+      <div key={label}>
+        <SpeakerDropdown
+          label={label}
+          options={surroundOptions}
+          value={selections[label] || ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            setSelections((prev) => ({
+              ...prev,
+              [label]: val,
+              [`${label} Price`]: formatPrice(
+                findPriceByModel(data.filter((item) => item.TYPE === "SURROUND"), "PRICE", brand, val)
+              ),
+            }));
+          }}
+        />
 
-          return (
-            <div key={label}>
-              {/* Static SURROUND selection dropdown */}
-              <SpeakerDropdown
-                label={label}
-                options={["No Surround", 2, 4].map((v) => ({ MODEL: v }))}
-                value={surroundValue || ""}
-                onChange={handleSelectionChange(label,price)}
-              />
-
-              {/* If 2 or 4 => show Surround model dropdown */}
-              {(surroundValue === "2" ||
-                surroundValue === 2 ||
-                surroundValue === "4" ||
-                surroundValue === 4) && (
-                <SpeakerDropdown
-                  label={`${label} Model`}
-                  options={getModelByBrand(filteredItems, "MODEL", brand)}
-                  value={selections[`${label} Model`] || ""}
-                onChange={handleSelectionChange(label,price)}
-                  price={formatPrice(
-                    getPriceByModel(
-                      filteredItems,
-                      "PRICE",
-                      brand,
-                      selections[`${label} Model`] || ""
-                    )[0]?.PRICE || ""
-                  )}
-                />
-              )}
-
-              {/* Show Atmos dropdown if value is "2", 2, or "No Surround" */}
-              {(surroundValue === "2" ||
-                surroundValue === 2 ||
-                surroundValue === "No Surround") && (
-                <SpeakerDropdown
-                  label="Atmos"
-                  options={getModelByBrand(
-                    data.filter((item) => item.TYPE === "ATMOS"),
-                    "MODEL",
-                    brand
-                  )}
-                  value={selections["Atmos"] || ""}
-                  onChange={handleSelectionChange("Atmos")}
-                  price={formatPrice(
-                    getPriceByModel(
-                      data.filter((item) => item.TYPE === "ATMOS"),
-                      "PRICE",
-                      brand,
-                      selections["Atmos"] || ""
-                    )[0]?.PRICE || ""
-                  )}
-                />
-              )}
-            </div>
-          );
-        }
-console.log();
-
-        // Default dropdowns for other speaker types
-        return (
+        {/* No Surround → only Atmos */}
+        {selections[label] === "No Surround" && (
           <SpeakerDropdown
-            key={label}
-            label={label}
-            options={getModelByBrand(filteredItems, "MODEL", brand)}
-            value={selections[label] || ""}
-            onChange={handleSelectionChange(label)}
+            label="Atmos"
+            options={getModelByBrand(
+              data.filter((item) => item.TYPE === "ATMOS"),
+              "MODEL",
+              brand
+            )}
+            value={selections["Atmos"] || ""}
+            onChange={handleSelectionChange("Atmos")
+              
+            }
             price={formatPrice(
-              getPriceByModel(
-                filteredItems,
+              findPriceByModel(
+                data.filter((item) => item.TYPE === "ATMOS"),
                 "PRICE",
                 brand,
-                selections[label] || ""
-              )[0]?.PRICE || ""
+                selections["Atmos"] || ""
+              )
             )}
           />
-        );
-      })}
+        )}
+
+        {/* 2 Surround → 2 Dropdowns + Atmos */}
+        {selections[label] === "2" && (
+          <>
+            {[1, 2].map((n) => (
+              <SpeakerDropdown
+                key={`Surround ${n}`}
+                label={`Surround ${n}`}
+                options={getModelByBrand(
+                  data.filter((item) => item.TYPE === "SURROUND"),
+                  "MODEL",
+                  brand
+                )}
+                value={selections[`Surround ${n}`] || ""}
+                onChange={handleSelectionChange(`Surround ${n}`)}
+                price={formatPrice(
+                  findPriceByModel(
+                    data.filter((item) => item.TYPE === "SURROUND"),
+                    "PRICE",
+                    brand,
+                    selections[`Surround ${n}`] || ""
+                  )
+                )}
+              />
+            ))}
+
+            <SpeakerDropdown
+              label="Atmos"
+              options={getModelByBrand(
+                data.filter((item) => item.TYPE === "ATMOS"),
+                "MODEL",
+                brand
+              )}
+              value={selections["Atmos"] || ""}
+              onChange={handleSelectionChange("Atmos")}
+              price={formatPrice(
+                findPriceByModel(
+                  data.filter((item) => item.TYPE === "ATMOS"),
+                  "PRICE",
+                  brand,
+                  selections["Atmos"] || ""
+                )
+              )}
+            />
+          </>
+        )}
+
+        {/* 4 Surround → 4 Dropdowns only */}
+        {selections[label] === "4" && (
+          <>
+            {[1, 2, 3, 4].map((n) => (
+              <SpeakerDropdown
+                key={`Surround ${n}`}
+                label={`Surround ${n}`}
+                options={getModelByBrand(
+                  data.filter((item) => item.TYPE === "SURROUND"),
+                  "MODEL",
+                  brand
+                )}
+                value={selections[`Surround ${n}`] || ""}
+                onChange={handleSelectionChange(`Surround ${n}`)}
+                price={formatPrice(
+                  findPriceByModel(
+                    data.filter((item) => item.TYPE === "SURROUND"),
+                    "PRICE",
+                    brand,
+                    selections[`Surround ${n}`] || ""
+                  )
+                )}
+              />
+            ))}
+          </>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <SpeakerDropdown
+      key={label}
+      label={label}
+      options={getModelByBrand(filteredData, "MODEL", brand)}
+      value={selectedModel}
+      onChange={handleSelectionChange(label)}
+      price={formattedPrice}
+    />
+  );
+})}
+
 
       <SpeakerDropdown
         label="Amplifier"

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
-import SurroundSpeakers from "./SurroundSpeakers";
+import SurroundSpeakers from "../SurroundSpeakers";
 import PdfQuotation from "./pdfQuotation";
 
 function DataEntryPage() {
@@ -19,7 +19,7 @@ function DataEntryPage() {
     { tab: "home", icon: "fa-house", label: "Main" },
     { tab: "invoice", icon: "fa-file-invoice-dollar", label: "Invoice" },
   ];
-console.log(fullSelectionData);
+  console.log(fullSelectionData);
 
   const surroundVersions = [
     { name: "5.1 System", value: "5.1" },
@@ -101,16 +101,22 @@ console.log(fullSelectionData);
         {(activeTab === "home" || window.innerWidth >= 1024) && (
           <div className="home w-full lg:w-1/2 overflow-auto mb-[80px] lg:mb-0 p-4">
             <div className="mb-4 p-4 border border-gray-400 rounded-xl shadow-md">
-              <h1 className="font-semibold text-md">Choose The Surround Version</h1>
+              <h1 className="font-semibold text-md">
+                Choose The Surround Version
+              </h1>
               <div className="mt-2 bg-amber-100 p-3 rounded-xl border border-black flex justify-center items-center">
                 <select
                   className="bg-amber-100 w-full text-sm font-medium outline-none text-center"
                   value={surroundType}
                   onChange={handleSurroundTypeChange}
                 >
-                  <option disabled value="">Select The Surround Type</option>
+                  <option disabled value="">
+                    Select The Surround Type
+                  </option>
                   {surroundVersions.map((item, index) => (
-                    <option key={index} value={item.value}>{item.name}</option>
+                    <option key={index} value={item.value}>
+                      {item.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -124,7 +130,9 @@ console.log(fullSelectionData);
                   value={brand}
                   onChange={handleBrandChange}
                 >
-                  <option disabled value="">Select The Brand</option>
+                  <option disabled value="">
+                    Select The Brand
+                  </option>
                   {getUniqueByKey(data, "BRAND").map((item, i) => (
                     <option key={`brand-${i}`}>{item.BRAND}</option>
                   ))}
