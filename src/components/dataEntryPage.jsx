@@ -19,6 +19,7 @@ function DataEntryPage() {
     { tab: "home", icon: "fa-house", label: "Main" },
     { tab: "invoice", icon: "fa-file-invoice-dollar", label: "Invoice" },
   ];
+console.log(fullSelectionData);
 
   const surroundVersions = [
     { name: "5.1 System", value: "5.1" },
@@ -88,83 +89,67 @@ function DataEntryPage() {
   };
 
   return (
-    <div className="h-screen bg-white">
-      <div className="p-5 border-b border-gray-200 shadow sticky top-0 bg-white z-10">
+    <div className="h-screen bg-white flex flex-col">
+      {/* Top Bar */}
+      <div className="p-5 border-b border-gray-200 bg-white shadow sticky top-0 z-10">
         <h1 className="font-semibold text-3xl">Cinema Focus</h1>
       </div>
 
-      {activeTab === "home" && (
-        <div className="home mb-20 overflow-scroll">
-          <div className="m-5 p-4 border border-gray-400 rounded-xl shadow-md">
-            <h1 className="font-semibold text-md">
-              Choose The Surround Version
-            </h1>
-            <div className="mt-2 bg-amber-100 p-3 rounded-xl border border-black flex justify-center items-center">
-              <select
-                className="bg-amber-100 w-full text-sm font-medium outline-none text-center"
-                value={surroundType}
-                onChange={handleSurroundTypeChange}
-              >
-                <option disabled value="">
-                  Select The Surround Type
-                </option>
-                {surroundVersions.map((item, index) => (
-                  <option key={index} value={item.value}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
+      {/* Main Content */}
+      <div className="flex-1 w-full flex flex-col lg:flex-row overflow-hidden">
+        {/* Home Section (visible always on lg, tab-controlled on mobile) */}
+        {(activeTab === "home" || window.innerWidth >= 1024) && (
+          <div className="home w-full lg:w-1/2 overflow-auto mb-[80px] lg:mb-0 p-4">
+            <div className="mb-4 p-4 border border-gray-400 rounded-xl shadow-md">
+              <h1 className="font-semibold text-md">Choose The Surround Version</h1>
+              <div className="mt-2 bg-amber-100 p-3 rounded-xl border border-black flex justify-center items-center">
+                <select
+                  className="bg-amber-100 w-full text-sm font-medium outline-none text-center"
+                  value={surroundType}
+                  onChange={handleSurroundTypeChange}
+                >
+                  <option disabled value="">Select The Surround Type</option>
+                  {surroundVersions.map((item, index) => (
+                    <option key={index} value={item.value}>{item.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div className="m-5 p-4 border border-gray-400 rounded-xl shadow-md">
-            <h1 className="font-semibold text-md">Choose The Brand</h1>
-            <div className="mt-2 bg-amber-100 p-3 rounded-xl border border-black flex justify-center items-center">
-              <select
-                className="bg-amber-100 w-full text-sm font-medium outline-none text-center"
-                value={brand}
-                onChange={handleBrandChange}
-              >
-                <option disabled value="">
-                  Select The Brand
-                </option>
-                {getUniqueByKey(data, "BRAND").map((item, i) => (
-                  <option key={`brand-${i}`}>{item.BRAND}</option>
-                ))}
-              </select>
+            <div className="mb-4 p-4 border border-gray-400 rounded-xl shadow-md">
+              <h1 className="font-semibold text-md">Choose The Brand</h1>
+              <div className="mt-2 bg-amber-100 p-3 rounded-xl border border-black flex justify-center items-center">
+                <select
+                  className="bg-amber-100 w-full text-sm font-medium outline-none text-center"
+                  value={brand}
+                  onChange={handleBrandChange}
+                >
+                  <option disabled value="">Select The Brand</option>
+                  {getUniqueByKey(data, "BRAND").map((item, i) => (
+                    <option key={`brand-${i}`}>{item.BRAND}</option>
+                  ))}
+                </select>
+              </div>
             </div>
+
+            <SurroundSpeakers
+              type={surroundType}
+              brand={brand}
+              initialSelections={fullSelectionData.selections}
+              onSelectionsChange={handleSelectionsChange}
+            />
           </div>
+        )}
 
-          <SurroundSpeakers
-            type={surroundType}
-            brand={brand}
-            initialSelections={fullSelectionData.selections}
-            onSelectionsChange={handleSelectionsChange}
-          />
+        {/* Invoice Section (visible always on lg, tab-controlled on mobile) */}
+        {(activeTab === "invoice" || window.innerWidth >= 1024) && (
+          <div className="invoice w-full lg:w-1/2 overflow-auto mb-[80px] lg:mb-0 p-4">
+            <PdfQuotation data={fullSelectionData} />
+          </div>
+        )}
+      </div>
 
-          {/* Display selected products and their prices
-                    {fullSelectionData.selections && Object.keys(fullSelectionData.selections).length > 0 && (
-                        <div className="m-5 p-4 border border-gray-400 rounded-xl shadow-md">
-                            <h2 className="font-semibold text-md mb-2">Selected Products & Prices</h2>
-                            <ul>
-                                {Object.entries(fullSelectionData.selections).map(([key, item]) => (
-                                    <li key={key} className="flex justify-between py-1">
-                                        <span>{item?.name || key}</span>
-                                        <span>₹{item?.price ? Number(item.price).toLocaleString() : '-'}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )} */}
-        </div>
-      )}
-
-      {activeTab === "invoice" && (
-        <div className="invoice mb-20">
-          <PdfQuotation data={fullSelectionData} />
-        </div>
-      )}
-
+      {/* Bottom Navigation (Mobile only) */}
       <div className="w-full fixed bottom-0 bg-white shadow-xl border-t border-gray-200 z-50 lg:hidden">
         <div className="flex justify-around items-center py-3">
           {tabs.map(({ tab, icon, label }) => (

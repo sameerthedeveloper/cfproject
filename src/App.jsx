@@ -11,7 +11,7 @@ function App() {
     <Router basename="/cfproject">
       <Routes>
         <Route path="/" element={<MainProtect element={<DataEntryPage />} />} />
-        <Route path="/manage" element={<ProtectedRoute element={<ManagePage />} />} />
+        <Route path="/admin" element={<ProtectedRoute element={<ManagePage />} />} />
       </Routes>
     </Router>
   );

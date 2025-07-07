@@ -1,34 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
+const SIMPLE_SURROUND_OPTIONS = ["No Surround", 2, 4];
 
 const CONFIG = {
   5.1: {
     "Left & Right": "LEFT RIGHT",
     "Center Speaker": "CENTER",
-    "Surround (2 Channel)": "SURROUND",
+    "Surround ": "SURROUND",
     Subwoofer: "SUB",
   },
   7.1: {
     "Left & Right": "LEFT RIGHT",
     "Center Speaker": "CENTER",
-    "Surround (2 Channel)": "SURROUND",
-    "Rear Surround (2 Channel)": "SURROUND",
+    "Surround ": "SURROUND",
+
     Subwoofer: "SUB",
   },
   7.2: {
     "Left & Right": "LEFT RIGHT",
     "Center Speaker": "CENTER",
-    "Surround (2 Channel)": "SURROUND",
-    "Rear Surround (2 Channel)": "SURROUND",
+    "Surround ": "SURROUND",
+
     Atmos: "ATMOS",
     Subwoofer: "SUB",
   },
   9.1: {
     "Left & Right": "LEFT RIGHT",
     "Center Speaker": "CENTER",
-    "Surround (2 Channel)": "SURROUND",
-    "Rear Surround (2 Channel)": "SURROUND",
+    "Surround ": "SURROUND",
+
     "Rear Back Surround": "SURROUND",
     Atmos: "ATMOS",
     Subwoofer: "SUB",
@@ -36,8 +37,8 @@ const CONFIG = {
   9.2: {
     "Left & Right": "LEFT RIGHT",
     "Center Speaker": "CENTER",
-    "Surround (2 Channel)": "SURROUND",
-    "Rear Surround (2 Channel)": "SURROUND",
+    "Surround ": "SURROUND",
+
     "Rear Back Surround": "SURROUND",
     Atmos: "ATMOS",
     Subwoofer: "SUB",
@@ -45,8 +46,8 @@ const CONFIG = {
   11.1: {
     "Left & Right": "LEFT RIGHT",
     "Center Speaker": "CENTER",
-    "Surround (2 Channel)": "SURROUND",
-    "Rear Surround (2 Channel)": "SURROUND",
+    "Surround ": "SURROUND",
+
     "Rear Back Surround": "SURROUND",
     Atmos: "ATMOS",
     Subwoofer: "SUB",
@@ -54,8 +55,8 @@ const CONFIG = {
   11.2: {
     "Left & Right": "LEFT RIGHT",
     "Center Speaker": "CENTER",
-    "Surround (2 Channel)": "SURROUND",
-    "Rear Surround (2 Channel)": "SURROUND",
+    "Surround ": "SURROUND",
+
     "Rear Back Surround": "SURROUND",
     Atmos: "ATMOS",
     Subwoofer: "SUB",
@@ -63,8 +64,8 @@ const CONFIG = {
   13.1: {
     "Left & Right": "LEFT RIGHT",
     "Center Speaker": "CENTER",
-    "Surround (2 Channel)": "SURROUND",
-    "Rear Surround (2 Channel)": "SURROUND",
+    "Surround ": "SURROUND",
+
     "Rear Back Surround": "SURROUND",
     Atmos: "ATMOS",
     Subwoofer: "SUB",
@@ -72,8 +73,8 @@ const CONFIG = {
   13.2: {
     "Left & Right": "LEFT RIGHT",
     "Center Speaker": "CENTER",
-    "Surround (2 Channel)": "SURROUND",
-    "Rear Surround (2 Channel)": "SURROUND",
+    "Surround ": "SURROUND",
+
     "Rear Back Surround": "SURROUND",
     Atmos: "ATMOS",
     Subwoofer: "SUB",
@@ -94,7 +95,7 @@ const collectionMap = {
 };
 
 const SpeakerDropdown = ({ label, options, value, onChange, price }) => (
-  <div className="m-5 p-4 border border-gray-400 rounded-xl shadow-md">
+  <div className="mb-4 p-4 border border-gray-400 rounded-xl shadow-md">
     <h1 className="font-semibold text-md">{label}</h1>
     <div className="flex-1 mt-2 bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center">
       <select
@@ -103,7 +104,7 @@ const SpeakerDropdown = ({ label, options, value, onChange, price }) => (
         value={value || ""}
         onChange={onChange}
       >
-        <option value="default">Select</option>
+        <option value="default">Select the Value</option>
         {label === "Atmos" && <option value="none">No Atmos</option>}
         {label === "Rear Back Surround" && <option value="none">None</option>}
         {label === "Signature Screen Ratio" && (
@@ -122,7 +123,8 @@ const SpeakerDropdown = ({ label, options, value, onChange, price }) => (
     {label !== "Projector Brand" &&
       label !== "Signature Screen Ratio" &&
       label !== `Screen Sizes for 16:9` &&
-      label !== `Screen Sizes for 2:3:5` && (
+      label !== `Screen Sizes for 2:3:5` &&
+      label !== "Surround " && (
         <>
           <h1 className="font-semibold text-md mt-2">{label} Price</h1>
           <div className="flex-1 mt-2 bg-amber-100 p-3 rounded-xl shadow border border-black flex justify-center items-center">
@@ -174,61 +176,71 @@ function SurroundSpeakers({
     if (type) fetchModels();
   }, [type]);
 
-useEffect(() => {
-  const fetchCommonData = async () => {
-    try {
-      const snap = await getDocs(collection(db, "SignatureScreenSizes"));
-      const screenRatios = new Set();
-      const screenSizes = {};
+  useEffect(() => {
+    const fetchCommonData = async () => {
+      try {
+        // Fetch screen sizes
+        const snap = await getDocs(collection(db, "SignatureScreenSizes"));
+        const screenRatios = new Set();
+        const screenSizes = {};
 
-      snap.docs.forEach((doc) => {
-        const data = doc.data(); // Example: { ratio: "16:9", sizes: [100, 120] } OR { ratio: "16:9", size: 120 }
+        snap.docs.forEach((doc) => {
+          const data = doc.data();
+          const ratio = data.ratio || Object.keys(data)[0];
+          const rawSizes = data.sizes || data.size || data[ratio];
 
-        const ratio = data.ratio || Object.keys(data)[0];
-        const rawSizes = data.sizes || data.size || data[ratio];
+          if (!ratio) return;
 
-        if (!ratio) {
-          console.warn("Missing ratio in:", data);
-          return;
-        }
+          screenRatios.add(ratio);
 
-        screenRatios.add(ratio);
+          const sizesArray = Array.isArray(rawSizes)
+            ? rawSizes
+            : typeof rawSizes === "number" || typeof rawSizes === "string"
+            ? [rawSizes]
+            : [];
 
-        const sizesArray = Array.isArray(rawSizes)
-          ? rawSizes
-          : typeof rawSizes === "number" || typeof rawSizes === "string"
-          ? [rawSizes]
-          : [];
+          const clean = sizesArray.filter((v) => v != null);
 
-        const clean = sizesArray.filter((v) => v != null);
+          if (!screenSizes[ratio]) screenSizes[ratio] = [];
+          screenSizes[ratio].push(...clean);
+        });
 
-        if (!screenSizes[ratio]) screenSizes[ratio] = [];
-        screenSizes[ratio].push(...clean);
-      });
+        Object.keys(screenSizes).forEach((ratio) => {
+          screenSizes[ratio] = [...new Set(screenSizes[ratio])].sort(
+            (a, b) => a - b
+          );
+        });
 
-      // Optional: remove duplicates and sort each size list
-      Object.keys(screenSizes).forEach((ratio) => {
-        screenSizes[ratio] = [...new Set(screenSizes[ratio])].sort((a, b) => a - b);
-      });
+        // Fetch Amplifiers
+        const ampSnap = await getDocs(collection(db, "Amplifiers"));
+        const amplifiers = ampSnap.docs.map((doc) => doc.data());
 
-      setCommonOptions((prev) => ({
-        ...prev,
-        "Signature Screen Ratio": [...screenRatios].map((r) => ({ MODEL: r })),
-        "Signature Screen Sizes": screenSizes,
-      }));
-    } catch (err) {
-      console.error("Error fetching SignatureScreenSizes:", err);
-    }
-  };
+        // Fetch Projectors
+        const projSnap = await getDocs(collection(db, "Projectors"));
+        const projectors = projSnap.docs.map((doc) => doc.data());
 
-  fetchCommonData();
-}, []);
+        setCommonOptions((prev) => ({
+          ...prev,
+          "Signature Screen Ratio": [...screenRatios].map((r) => ({
+            MODEL: r,
+          })),
+          "Signature Screen Sizes": screenSizes,
+          Amplifier: amplifiers,
+          Projector: projectors,
+        }));
+      } catch (err) {
+        console.error("Error fetching common data:", err);
+      }
+    };
 
+    fetchCommonData();
+  }, []);
 
-  const handleSelectionChange = (label) => (e) => {
+  const handleSelectionChange = (label,price) => (e) => {
     setSelections((prev) => ({
       ...prev,
       [label]: e.target.value,
+      [`${label} Price`]:e.target.price
     }));
   };
 
@@ -266,27 +278,92 @@ useEffect(() => {
 
   return (
     <div className="mb-20">
-      {Object.entries(layout).map(([label, firestoreType]) => (
-        <SpeakerDropdown
-          key={label}
-          label={label}
-          options={getModelByBrand(
-            data.filter((item) => item.TYPE === firestoreType),
-            "MODEL",
-            brand
-          )}
-          value={selections[label] || ""}
-          onChange={handleSelectionChange(label)}
-          price={formatPrice(
-            getPriceByModel(
-              data.filter((item) => item.TYPE === firestoreType),
-              "PRICE",
-              brand,
-              selections[label] || ""
-            )[0]?.PRICE || ""
-          )}
-        />
-      ))}
+      {Object.entries(layout).map(([label, firestoreType]) => {
+        const filteredItems = data.filter(
+          (item) => item.TYPE === firestoreType
+        );
+
+        if (firestoreType === "SURROUND") {
+          const surroundValue = selections[label];
+
+          return (
+            <div key={label}>
+              {/* Static SURROUND selection dropdown */}
+              <SpeakerDropdown
+                label={label}
+                options={["No Surround", 2, 4].map((v) => ({ MODEL: v }))}
+                value={surroundValue || ""}
+                onChange={handleSelectionChange(label,price)}
+              />
+
+              {/* If 2 or 4 => show Surround model dropdown */}
+              {(surroundValue === "2" ||
+                surroundValue === 2 ||
+                surroundValue === "4" ||
+                surroundValue === 4) && (
+                <SpeakerDropdown
+                  label={`${label} Model`}
+                  options={getModelByBrand(filteredItems, "MODEL", brand)}
+                  value={selections[`${label} Model`] || ""}
+                onChange={handleSelectionChange(label,price)}
+                  price={formatPrice(
+                    getPriceByModel(
+                      filteredItems,
+                      "PRICE",
+                      brand,
+                      selections[`${label} Model`] || ""
+                    )[0]?.PRICE || ""
+                  )}
+                />
+              )}
+
+              {/* Show Atmos dropdown if value is "2", 2, or "No Surround" */}
+              {(surroundValue === "2" ||
+                surroundValue === 2 ||
+                surroundValue === "No Surround") && (
+                <SpeakerDropdown
+                  label="Atmos"
+                  options={getModelByBrand(
+                    data.filter((item) => item.TYPE === "ATMOS"),
+                    "MODEL",
+                    brand
+                  )}
+                  value={selections["Atmos"] || ""}
+                  onChange={handleSelectionChange("Atmos")}
+                  price={formatPrice(
+                    getPriceByModel(
+                      data.filter((item) => item.TYPE === "ATMOS"),
+                      "PRICE",
+                      brand,
+                      selections["Atmos"] || ""
+                    )[0]?.PRICE || ""
+                  )}
+                />
+              )}
+            </div>
+          );
+        }
+console.log();
+
+        // Default dropdowns for other speaker types
+        return (
+          <SpeakerDropdown
+            key={label}
+            label={label}
+            options={getModelByBrand(filteredItems, "MODEL", brand)}
+            value={selections[label] || ""}
+            onChange={handleSelectionChange(label)}
+            price={formatPrice(
+              getPriceByModel(
+                filteredItems,
+                "PRICE",
+                brand,
+                selections[label] || ""
+              )[0]?.PRICE || ""
+            )}
+          />
+        );
+      })}
 
       <SpeakerDropdown
         label="Amplifier"
@@ -354,32 +431,30 @@ useEffect(() => {
       )}
 
       <SpeakerDropdown
-  label="Signature Screen Ratio"
-  options={commonOptions["Signature Screen Ratio"] || []}
-  value={selectedRatio}
-  onChange={(e) => {
-    const ratio = e.target.value;
-    setSelectedRatio(ratio);
-    setSelections((prev) => ({
-      ...prev,
-      "Signature Screen Ratio": ratio,
-      "Signature Screen": "",
-    }));
-  }}
-/>
-
+        label="Signature Screen Ratio"
+        options={commonOptions["Signature Screen Ratio"] || []}
+        value={selectedRatio}
+        onChange={(e) => {
+          const ratio = e.target.value;
+          setSelectedRatio(ratio);
+          setSelections((prev) => ({
+            ...prev,
+            "Signature Screen Ratio": ratio,
+            "Signature Screen": "",
+          }));
+        }}
+      />
 
       {selectedRatio !== "none" && selectedRatio !== "default" && (
         <>
           <SpeakerDropdown
-  label={`Screen Sizes for ${selectedRatio}`}
-  options={(
-    commonOptions["Signature Screen Sizes"]?.[selectedRatio] || []
-  ).map((v) => ({ MODEL: v }))}
-  value={selections["Signature Screen"] || ""}
-  onChange={handleSelectionChange("Signature Screen")}
-/>
-
+            label={`Screen Sizes for ${selectedRatio}`}
+            options={(
+              commonOptions["Signature Screen Sizes"]?.[selectedRatio] || []
+            ).map((v) => ({ MODEL: v }))}
+            value={selections["Signature Screen"] || ""}
+            onChange={handleSelectionChange("Signature Screen")}
+          />
 
           <div className="m-5 p-4 border border-gray-400 rounded-xl shadow-md">
             <h1 className="font-semibold text-md">Custom Screen Price</h1>
