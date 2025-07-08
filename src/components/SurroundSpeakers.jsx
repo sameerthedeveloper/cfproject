@@ -1,6 +1,6 @@
 import React, { use, useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "./firebase";
 const SIMPLE_SURROUND_OPTIONS = ["No Surround", 2, 4];
 
 const CONFIG = {
