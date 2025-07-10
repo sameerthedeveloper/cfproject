@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
 import Speakers from "./Speakers";
 
-function SurroundDropDown({ label, count, setCount, List = [], valueKey, labelKey,selected,setSelected }) {
+function SurroundDropDown({ label, count, setCount, List = [], valueKey, labelKey,selected,setSelected,price,
+  setPrice,
+  rawprice }) {
   const SurOpts = [
     { label: "Select The Count", value: 0.1 },
     { label: "No Surround", value: 0 },
@@ -68,6 +70,9 @@ function SurroundDropDown({ label, count, setCount, List = [], valueKey, labelKe
           setSelected={setSelected}
           valueKey={valueKey}
           labelKey={labelKey}
+          price={price}
+          setPrice={setPrice}
+          rawprice={rawprice}
         />
 
         </>

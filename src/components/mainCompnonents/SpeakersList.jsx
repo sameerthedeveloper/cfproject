@@ -6,6 +6,7 @@ import SurroundDropDown from "../miniCompnonents/SurroundDropDown";
 import Amplifier from "../miniCompnonents/Amplifier";
 import QuotationPDF from "./pdfQuotation";
 import Projector from "../miniCompnonents/Projector";
+import FinalDatatable from "./FinalDataTable";
 
 function SpeakersList() {
   const [activeTab, setActiveTab] = useState("home");
@@ -15,6 +16,10 @@ function SpeakersList() {
   ];
 
   const [data, setData] = useState([]);
+
+  const [priceLR, setPriceLR] = useState();
+  const [priceCenter, setPriceCenter] = useState();
+  const [priceSub, setPriceSub] = useState();
 
   const [surroundType, setSurroundType] = useState("");
 
@@ -32,18 +37,52 @@ function SpeakersList() {
   const [surroundCountvalue, setSurroundCountvalue] = useState();
   const [surr, setSurr] = useState([]);
   const [selectedSurr, setSelectedSurr] = useState("");
+  const [priceSurr, setPriceSurr] = useState();
 
   const [atmosCountvalue, setAtmosCountvalue] = useState();
   const [atmos, setAtmos] = useState([]);
   const [selectedAtmos, setSelectedAtmos] = useState("");
+  const [priceAtmos, setPriceAtmos] = useState();
 
   const [Amplifier, setAmplifier] = useState([]);
   const [selectedAmplifier, setSelectedAmplifier] = useState("");
+  const [priceAmp, setPriceAmp] = useState();
 
   const [Projectors, setProjectors] = useState([]);
   const [projectorBrands, setProjectorBrands] = useState([]);
   const [selectedProjector, setSelectedProjector] = useState("");
   const [selectedProjectorBrand, setSelectedProjectorBrand] = useState("");
+  const [priceProj, setPriceProj] = useState();
+
+  const [screen, setscreen] = useState([]);
+  const [ratioList, setRatioList] = useState([]);
+  const [screenRatio, setScreenRatio] = [""];
+  const [selectedScreen, setSelectedScreen] = useState("");
+  const [priceScreen, setPriceScreen] = useState();
+  const [ScreenSizeList,setScreenSizeList] = useState([]);
+
+  const finalData = {
+    "Surround Version": surroundType,
+    Brand: selectedBrand,
+    "Projector Brand": selectedProjectorBrand,
+    "Left & Right": selectedLR,
+    "LR Price": priceLR,
+    Center: selectedCenter,
+    "Center Price": priceCenter,
+    "Surround Count": surroundCountvalue,
+    Surround: selectedSurr,
+    "Surround Price": priceSurr,
+    "Atmos Count": atmosCountvalue,
+    Atmos: selectedAtmos,
+    "Atmos Price": priceAtmos,
+    Subwoofer: selectedSubwoofer,
+    "Sub Price": priceSub,
+    Amplifier: selectedAmplifier,
+    "Amp Price": priceAmp,
+
+    Projector: selectedProjector,
+    "Projector Price": priceProj,
+  };
 
   const CONFIG = {
     5.1: {
@@ -287,6 +326,102 @@ function SpeakersList() {
     fetchProjData();
   }, []);
 
+  const formatPrice = (price) => {
+    if (price === null || price === undefined) return "";
+    return new Intl.NumberFormat("en-IN").format(price);
+  };
+
+  const findPriceByModel = (arr, key = "PRICE", brand, model) => {
+    for (const item of arr) {
+      if (item[key] && item.BRAND === brand && item.MODEL === model) {
+        return item[key]; // Should return PRICE number
+      }
+    }
+    return 0; // Return 0 if no match
+  };
+
+  useEffect(() => {
+    const raw = findPriceByModel(data, "PRICE", selectedBrand, selectedCenter);
+    setPriceCenter(raw);
+  }, [selectedCenter, selectedBrand, data]);
+
+  useEffect(() => {
+    const raw = findPriceByModel(
+      data,
+      "PRICE",
+      selectedBrand,
+      selectedSubwoofer
+    );
+    setPriceSub(raw);
+  }, [selectedSubwoofer, selectedBrand, data]);
+
+  useEffect(() => {
+    const raw = findPriceByModel(data, "PRICE", selectedBrand, selectedSurr);
+    setPriceSurr(raw);
+  }, [selectedSurr, selectedBrand, data]);
+
+  useEffect(() => {
+    const raw = findPriceByModel(data, "PRICE", selectedBrand, selectedAtmos);
+    setPriceAtmos(raw);
+  }, [selectedAtmos, selectedBrand, data]);
+
+  useEffect(() => {
+    const raw = findPriceByModel(
+      Amplifier,
+      "PRICE",
+      selectedBrand,
+      selectedAmplifier
+    );
+    setPriceAmp(raw);
+  }, [selectedAmplifier, selectedBrand, Amplifier]);
+
+  useEffect(() => {
+    const raw = findPriceByModel(
+      Projectors,
+      "PRICE",
+      selectedProjectorBrand,
+      selectedProjector
+    );
+    setPriceProj(raw);
+  }, [selectedProjector, selectedProjectorBrand, Projectors]);
+
+  const filteredData = data.filter(
+    (item) => item.BRAND === selectedBrand && item.TYPE === firestoreType
+  );
+  const rawPriceAmp = findPriceByModel(
+    filteredData,
+    "PRICE",
+    selectedBrand,
+    selectedSurr
+  );
+
+  useEffect(() => {
+    const fetchScreenData = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "SignatureScreenSizes"));
+        const items = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setscreen(items);
+        setRatioList(getUniqueByKey(items, "ratio"));
+      } catch (e) {}
+    };
+
+    fetchScreenData();
+  }, [screenRatio]);
+
+  // useEffect(()=>{
+  //   const fetchScreenSize = async ()=>{
+  //     try{
+
+
+  //     }catch(e){
+
+  //     }
+  //   }
+  // },[])
+
   return (
     <div className="h-screen bg-white flex flex-col">
       {/* Top Bar */}
@@ -296,7 +431,7 @@ function SpeakersList() {
 
       {activeTab === "home" && (
         <>
-          <div className="home overflow-scroll scroll-auto">
+          <div className="home overflow-scroll scroll-hide">
             {/* Surround Type Dropdown */}
             <Speakers
               label={"Surround Version"}
@@ -321,6 +456,8 @@ function SpeakersList() {
               CONFIG[surroundType] &&
               Object.entries(CONFIG[surroundType]).map(
                 ([label, firestoreType]) => {
+                  // const selectedModel = selections[label] || "";
+
                   const filteredData = data.filter(
                     (item) =>
                       item.BRAND === selectedBrand &&
@@ -372,20 +509,41 @@ function SpeakersList() {
                       // Add subwoofer or other roles if needed
                     };
 
+                    const selectedPriceStateMap = {
+                      "Left & Right": [priceLR, setPriceLR],
+                      "Center Speaker": [priceCenter, setPriceCenter],
+                      Subwoofer: [priceSub, setPriceSub],
+                      // Add subwoofer or other roles if needed
+                    };
+
                     const [selected, setSelected] = selectedStateMap[label] || [
                       "",
                       () => {},
                     ];
 
+                    const [selectedPrice, setSelectedPrice] =
+                      selectedPriceStateMap[label] || ["", () => {}];
+
+                    const rawPrice = findPriceByModel(
+                      filteredData,
+                      "PRICE",
+                      selectedBrand,
+                      selected
+                    );
+                    const formattedPrice = formatPrice(rawPrice);
+
                     return (
                       <Speakers
                         key={label}
-                        label={`Choose ${label}`}
+                        label={`${label}`}
                         List={filteredData}
                         selected={selected}
                         setSelected={setSelected}
                         valueKey={valueKey}
                         labelKey={labelKey}
+                        price={formattedPrice}
+                        rawprice={rawPrice}
+                        setPrice={setSelectedPrice}
                       />
                     );
                   }
@@ -399,6 +557,9 @@ function SpeakersList() {
               setSelected={setSelectedAmplifier}
               valueKey="MODEL"
               labelKey="MODEL"
+              price={priceSurr}
+              setPrice={setPriceSurr}
+              rawprice={rawPriceAmp}
             />
             <Projector
               label="Projector"
@@ -421,7 +582,8 @@ function SpeakersList() {
 
       {activeTab === "invoice" && (
         <div className="p-4">
-          <QuotationPDF />
+          {/* <QuotationPDF /> */}
+          <FinalDatatable data={finalData} />
         </div>
       )}
       {/* Bottom Navigation (Mobile only) */}

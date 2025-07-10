@@ -12,9 +12,9 @@ function App() {
   return (
     <Router basename="/cfproject">
       <Routes>
-        <Route path='/main' element={<SpeakersList/>}/>
+        {/* <Route path='/main' element={}/> */}
         {/* <Route path="/" element={<UnderDevelopment />} /> */}
-        <Route path="/" element={<MainProtect element={<DataEntryPage />} />} />
+        <Route path="/" element={<MainProtect element={<SpeakersList/>} />} />
         <Route path="/admin" element={<ProtectedRoute element={<ManagePage />} />} />
       </Routes>
     </Router>
