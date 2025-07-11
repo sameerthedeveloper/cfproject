@@ -1,8 +1,14 @@
 import React from "react";
 
 function ScreenSize({
-  label,List,Size,setsize,valueKey,labelKey
+  label,
+  List,
+  Size,
+  setsize,
+  valueKey,
+  labelKey,
 }) {
+
   return (
     <div className="mt-3 mx-3 my-3">
       <div className="mx-1 p-4 border border-gray-400 rounded-xl shadow-md">
@@ -14,19 +20,21 @@ function ScreenSize({
             value={Size}
             onChange={(e) => {
               const value = e.target.value;
-              setsize(value);
-
+              setsize(value); // or Number(value) if numeric
             }}
           >
-            <option value="default">Select The Value</option>
-            {List.map((item, index) => (
-              <option key={index} value={item[valueKey]}>
-                {item[labelKey]}
-              </option>
-            ))}
+            <option value="default"  disabled>
+              Select The Value
+            </option>
+
+            {Array.isArray(List) &&
+              List.map((item, index) => (
+                <option key={index} value={item[valueKey]}>
+                  {item[labelKey]}
+                </option>
+              ))}
           </select>
         </div>
-        
       </div>
     </div>
   );

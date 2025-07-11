@@ -1,6 +1,5 @@
-import { useEffect } from "react";
-import ScreenSize from "./ScreenSize";
-
+import React from 'react';
+import ScreenSize from './ScreenSize';
 
 function ScreenRatio({
   label,
@@ -20,15 +19,12 @@ function ScreenRatio({
   GetUnique,
   GetSize,
 }) {
-  const list = GetUnique(List, "ratio");
-  const sizeList = GetSize(List, "size", screenRatioValue);
-  
-  useEffect(()=>{
-    console.log(sizeList);
-    console.log(List);
+  const list = GetUnique(List, 'ratio');
+  const sizeList =
+    screenRatioValue !== 'default'
+      ? GetSize(List, 'ratio', screenRatioValue)
+      : [];
     
-    
-  })
 
   return (
     <>
@@ -43,6 +39,7 @@ function ScreenRatio({
               onChange={(e) => {
                 const value = e.target.value;
                 setScreenRatio(value);
+                setselectedModel(""); // Reset size when ratio changes
               }}
             >
               <option value="default">Select The Value</option>
@@ -56,9 +53,9 @@ function ScreenRatio({
         </div>
       </div>
 
-      {screenRatioValue && (
+      {screenRatioValue && screenRatioValue !== 'default' && (
         <ScreenSize
-          label={"Screen Size"}
+          label={'Screen Size'}
           setsize={setselectedModel}
           Size={SelectedModel}
           List={sizeList}

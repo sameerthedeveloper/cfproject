@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/cfproject',
+  base: '/cfproject/',
   build: {
     chunkSizeWarningLimit: 1000, // optional: silence 500kb warning
     rollupOptions: {

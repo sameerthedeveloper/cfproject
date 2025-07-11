@@ -232,9 +232,12 @@ function SpeakersList() {
   };
 
  const getScreenSizesByRatio = (arr, key, ratio) => {
-  if (!ratio || ratio === "default") return [];
-  return arr.filter((item) => item[key] === ratio);
+  if (!Array.isArray(arr) || !ratio) return [];
+  return arr.filter((item) => item[key]?.toString() === ratio.toString());
 };
+
+
+
 
 
   // Update LR models when brand changes
@@ -580,8 +583,8 @@ function SpeakersList() {
   setLens={setlens}
   labelkey="ratio"
   valuekey="ratio"
-  LabelKey="MODEL"
-  ValueKey="MODEL"
+  LabelKey="size"
+  ValueKey="size"
   GetUnique={getUniqueByKey}
   GetSize={getScreenSizesByRatio}
 />
