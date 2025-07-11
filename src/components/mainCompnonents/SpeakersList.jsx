@@ -7,6 +7,8 @@ import Amplifier from "../miniCompnonents/Amplifier";
 import QuotationPDF from "./pdfQuotation";
 import Projector from "../miniCompnonents/Projector";
 import FinalDatatable from "./FinalDataTable";
+import ScreenRatio from "../miniCompnonents/ScreenRatio"; // expecting default export
+import ScreenSize from "../miniCompnonents/ScreenSize";
 
 function SpeakersList() {
   const [activeTab, setActiveTab] = useState("home");
@@ -54,12 +56,18 @@ function SpeakersList() {
   const [selectedProjectorBrand, setSelectedProjectorBrand] = useState("");
   const [priceProj, setPriceProj] = useState();
 
-  const [screen, setscreen] = useState([]);
-  const [ratioList, setRatioList] = useState([]);
-  const [screenRatio, setScreenRatio] = [""];
-  const [selectedScreen, setSelectedScreen] = useState("");
-  const [priceScreen, setPriceScreen] = useState();
-  const [ScreenSizeList,setScreenSizeList] = useState([]);
+  // const [screen, setscreen] = useState([]);
+  // const [ratioList, setRatioList] = useState([]);
+  // const [screenRatio, setScreenRatio] = useState("");
+  // const [selectedScreen, setSelectedScreen] = useState("");
+  // const [priceScreen, setPriceScreen] = useState();
+  // const [ScreenSizeList, setScreenSizeList] = useState([]);
+
+  const [ScreenList, setScreenList] = useState([]);
+  const [screenRatioValue, setScreenRatioValue] = useState("");
+  const [SelectedScreenSize, setSelectedScreenSize] = useState("");
+  const [ScreenPrice, setScreenPrice] = useState();
+  const [lens, setlens] = useState();
 
   const finalData = {
     "Surround Version": surroundType,
@@ -203,11 +211,8 @@ function SpeakersList() {
   const getUniqueByKey = (arr, key) => {
     const seen = new Set();
     return arr.filter((item) => {
-      if (item[key] && !seen.has(item[key])) {
-        seen.add(item[key]);
-        return true;
-      }
-      return false;
+      const val = item[key];
+      return val && !seen.has(val) && seen.add(val);
     });
   };
 
@@ -225,6 +230,12 @@ function SpeakersList() {
       );
     });
   };
+
+ const getScreenSizesByRatio = (arr, key, ratio) => {
+  if (!ratio || ratio === "default") return [];
+  return arr.filter((item) => item[key] === ratio);
+};
+
 
   // Update LR models when brand changes
   useEffect(() => {
@@ -385,42 +396,22 @@ function SpeakersList() {
     setPriceProj(raw);
   }, [selectedProjector, selectedProjectorBrand, Projectors]);
 
-  const filteredData = data.filter(
-    (item) => item.BRAND === selectedBrand && item.TYPE === firestoreType
-  );
-  const rawPriceAmp = findPriceByModel(
-    filteredData,
-    "PRICE",
-    selectedBrand,
-    selectedSurr
-  );
-
+  // fetch only once on mount
   useEffect(() => {
-    const fetchScreenData = async () => {
+    const fetchEntries = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "SignatureScreenSizes"));
-        const items = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setscreen(items);
-        setRatioList(getUniqueByKey(items, "ratio"));
-      } catch (e) {}
+        const querySnapshot = await getDocs(
+          collection(db, "SignatureScreenSizes")
+        );
+        const items = querySnapshot.docs.map(doc=>({id:doc.id,...doc.data()}))
+        setScreenList(items)
+      } catch (error) {
+        console.error("Error fetching SignatureScreenSizes:", error);
+      }
     };
 
-    fetchScreenData();
-  }, [screenRatio]);
-
-  // useEffect(()=>{
-  //   const fetchScreenSize = async ()=>{
-  //     try{
-
-
-  //     }catch(e){
-
-  //     }
-  //   }
-  // },[])
+    fetchEntries();
+  }, [screenRatioValue]);
 
   return (
     <div className="h-screen bg-white flex flex-col">
@@ -557,10 +548,11 @@ function SpeakersList() {
               setSelected={setSelectedAmplifier}
               valueKey="MODEL"
               labelKey="MODEL"
-              price={priceSurr}
-              setPrice={setPriceSurr}
-              rawprice={rawPriceAmp}
+              price={formatPrice(priceAmp)}
+              setPrice={setPriceAmp}
+              rawprice={priceAmp}
             />
+
             <Projector
               label="Projector"
               selected={selectedProjector}
@@ -574,6 +566,26 @@ function SpeakersList() {
               cmlk="MODEL"
               cmvk="MODEL"
             />
+
+            <ScreenRatio
+  label="Screen Ratio"
+  List={ScreenList}
+  screenRatioValue={screenRatioValue}
+  setScreenRatio={setScreenRatioValue}
+  ModelList={ScreenList}
+  SelectedModel={SelectedScreenSize}
+  setselectedModel={setSelectedScreenSize}
+  price={ScreenPrice}
+  setPrice={setScreenPrice}
+  setLens={setlens}
+  labelkey="ratio"
+  valuekey="ratio"
+  LabelKey="MODEL"
+  ValueKey="MODEL"
+  GetUnique={getUniqueByKey}
+  GetSize={getScreenSizesByRatio}
+/>
+
 
             <div className="mb-20"></div>
           </div>
