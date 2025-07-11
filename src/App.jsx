@@ -10,7 +10,7 @@ import StatusWrapper from './components/SupportComponents/StatusWrapper'; // ✅
 
 function App() {
   return (
-    <Router basename="/cfproject">
+    <Router basename="/cfproject/">
       <Routes>
         {/* ✅ Use wrapper that decides online/offline */}
         <Route path="/" element={<MainProtect element={<StatusWrapper />} />} />
